@@ -782,12 +782,12 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, Player *player_, u16 peer_id_,
 	m_prop.physical = false;
 	m_prop.weight = 75;
 	m_prop.collisionbox = core::aabbox3d<f32>(-1/3.,-1.0,-1/3., 1/3.,1.0,1/3.);
-	m_prop.visual = "upright_sprite";
+	m_prop.visual = "mesh";
 	m_prop.visual_size = v2f(1, 2);
 	m_prop.textures.clear();
 	m_prop.textures.push_back("player.png");
-	m_prop.textures.push_back("player_back.png");
-	m_prop.spritediv = v2s16(1,1);
+	//m_prop.textures.push_back("player_back.png");
+	//m_prop.spritediv = v2s16(1,1);
 	m_prop.is_visible = (getHP() != 0);
 	m_prop.makes_footstep_sound = true;
 }
