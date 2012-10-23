@@ -801,7 +801,7 @@ public:
 		}
 		else if(m_prop.visual == "mesh"){
 			infostream<<"GenericCAO::addToScene(): mesh"<<std::endl;
-			scene::IAnimatedMesh *mesh = smgr->getMesh("player.obj");
+			scene::IAnimatedMesh *mesh = smgr->getMesh(m_prop.mesh.c_str());
 			m_animated_meshnode = smgr->addAnimatedMeshSceneNode(mesh, NULL);
 			mesh->drop();
 			
@@ -1056,12 +1056,11 @@ public:
 		{
 			if(m_prop.visual == "mesh")
 			{
-				std::string texturestring = "unknown_block.png";
-				if(m_prop.textures.size() >= 1)
-					texturestring = m_prop.textures[0];
-				texturestring += mod;
-				m_animated_meshnode->setMaterialTexture(0,
-						tsrc->getTextureRaw(texturestring));
+				// fallback texture
+				if(m_prop.texture == "")
+					m_prop.texture = "unknown_block.png";
+				video::IVideoDriver* driver = m_animated_meshnode->getSceneManager()->getVideoDriver();
+				m_animated_meshnode->setMaterialTexture(0, driver->getTexture(m_prop.texture.c_str()));
 			}
 		}
 		if(m_meshnode)
