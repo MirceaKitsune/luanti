@@ -6589,6 +6589,8 @@ void scriptapi_luaentity_get_properties(lua_State *L, u16 id,
 	lua_pop(L, 1);
 
 	getstringfield(L, -1, "visual", prop->visual);
+
+	getstringfield(L, -1, "mesh", prop->mesh);
 	
 	// Deprecated: read object properties directly
 	read_object_properties(L, -1, prop);
