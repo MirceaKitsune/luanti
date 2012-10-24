@@ -4055,7 +4055,7 @@ void Server::fillMediaCache()
 				".png", ".jpg", ".bmp", ".tga",
 				".pcx", ".ppm", ".psd", ".wal", ".rgb",
 				".ogg",
-				".obj", ".md2", ".md3",
+				".b3d", ".md2", ".obj",
 				NULL
 			};
 			if(removeStringEnd(filename, supported_ext) == ""){
