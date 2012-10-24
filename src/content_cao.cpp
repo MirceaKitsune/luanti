@@ -1060,16 +1060,22 @@ public:
 		{
 			if(m_prop.visual == "mesh")
 			{
-				for (u32 i = 0; i <= m_prop.textures.size(); ++i)
+				for (u32 i = 0; i < m_prop.textures.size(); ++i)
 				{
 					std::string texturestring = m_prop.textures[i];
 					if(texturestring == "")
-						continue; // empty texture means don't modify
+						continue; // Empty texture string means don't modify that material
 					texturestring += mod;
 					video::IVideoDriver* driver = m_animated_meshnode->getSceneManager()->getVideoDriver();
-					m_animated_meshnode->setMaterialTexture(i, driver->getTexture(texturestring.c_str()));
+					video::ITexture* texture = driver->getTexture(texturestring.c_str());
+					if(!texture)
+					{
+						errorstream<<"GenericCAO::updateTextures(): Could not load texture "<<texturestring<<std::endl;
+						continue;
+					}
 
 					// Set material flags and texture
+					m_animated_meshnode->setMaterialTexture(i, texture);
 					video::SMaterial& material = m_animated_meshnode->getMaterial(i);
 					material.setFlag(video::EMF_LIGHTING, false);
 					material.setFlag(video::EMF_BILINEAR_FILTER, false);
