@@ -1060,15 +1060,19 @@ public:
 		{
 			if(m_prop.visual == "mesh")
 			{
-				video::IVideoDriver* driver = m_animated_meshnode->getSceneManager()->getVideoDriver();
-				m_animated_meshnode->setMaterialTexture(0, driver->getTexture(m_prop.textures[0].c_str()));
+				for (u32 i = 0; i <= m_prop.textures.size(); ++i)
+				{
+					std::string texturestring = m_prop.textures[i];
+					texturestring += mod;
+					video::IVideoDriver* driver = m_animated_meshnode->getSceneManager()->getVideoDriver();
+					m_animated_meshnode->setMaterialTexture(i, driver->getTexture(texturestring.c_str()));
 
-				// Set material flags and texture
-				video::SMaterial& material = m_animated_meshnode->getMaterial(0);
-				material.setFlag(video::EMF_LIGHTING, false);
-				material.setFlag(video::EMF_BILINEAR_FILTER, false);
+					// Set material flags and texture
+					video::SMaterial& material = m_animated_meshnode->getMaterial(i);
+					material.setFlag(video::EMF_LIGHTING, false);
+					material.setFlag(video::EMF_BILINEAR_FILTER, false);
+				}
 			}
-			errorstream<<"The textures: "<<m_prop.textures[0]<<" ---- "<<m_prop.textures[1]<<std::endl;
 		}
 		if(m_meshnode)
 		{
