@@ -1063,6 +1063,8 @@ public:
 				for (u32 i = 0; i <= m_prop.textures.size(); ++i)
 				{
 					std::string texturestring = m_prop.textures[i];
+					if(texturestring == "")
+						continue; // empty texture means don't modify
 					texturestring += mod;
 					video::IVideoDriver* driver = m_animated_meshnode->getSceneManager()->getVideoDriver();
 					m_animated_meshnode->setMaterialTexture(i, driver->getTexture(texturestring.c_str()));
