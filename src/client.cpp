@@ -41,6 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "sound.h"
 #include "util/string.h"
 #include "hex.h"
+#include "IMeshCache.h"
 
 static std::string getMediaCacheDir()
 {
@@ -820,8 +821,8 @@ bool Client::loadMedia(const std::string &data, const std::string &filename)
 	name = removeStringEnd(filename, image_ext);
 	if(name != "")
 	{
-		verbosestream<<"Client: Attempting to load image "
-				<<"file \""<<filename<<"\""<<std::endl;
+		verbosestream<<"Client: Storing image into Irrlicht: "
+				<<"\""<<filename<<"\""<<std::endl;
 
 		io::IFileSystem *irrfs = m_device->getFileSystem();
 		video::IVideoDriver *vdrv = m_device->getVideoDriver();
@@ -854,8 +855,8 @@ bool Client::loadMedia(const std::string &data, const std::string &filename)
 	name = removeStringEnd(filename, sound_ext);
 	if(name != "")
 	{
-		verbosestream<<"Client: Attempting to load sound "
-				<<"file \""<<filename<<"\""<<std::endl;
+		verbosestream<<"Client: Storing sound into Irrlicht: "
+				<<"\""<<filename<<"\""<<std::endl;
 		m_sound->loadSoundData(name, data);
 		return true;
 	}
@@ -868,14 +869,17 @@ bool Client::loadMedia(const std::string &data, const std::string &filename)
 	if(name != "")
 	{
 		verbosestream<<"Client: Storing model into Irrlicht: "
-				<<"file \""<<filename<<"\""<<std::endl;
+				<<"\""<<filename<<"\""<<std::endl;
 
 		io::IFileSystem *irrfs = m_device->getFileSystem();
-
-		// Create an irrlicht memory file
-		io::IReadFile *rfile = irrfs->createMemoryReadFile(*data_rw, data_rw.getSize(), filename.c_str(), true);
+		io::IReadFile *rfile = irrfs->createMemoryReadFile(
+				*data_rw, data_rw.getSize(), filename.c_str());
 		assert(rfile);
-		//rfile->drop();
+		
+		scene::ISceneManager *smgr = m_device->getSceneManager();
+		scene::IAnimatedMesh *mesh = smgr->getMesh(rfile);
+		smgr->getMeshCache()->addMesh(filename.c_str(), mesh);
+		
 		return true;
 	}
 
