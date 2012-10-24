@@ -1066,8 +1066,7 @@ public:
 					if(texturestring == "")
 						continue; // Empty texture string means don't modify that material
 					texturestring += mod;
-					video::IVideoDriver* driver = m_animated_meshnode->getSceneManager()->getVideoDriver();
-					video::ITexture* texture = driver->getTexture(texturestring.c_str());
+					video::ITexture* texture = tsrc->getTextureRaw(texturestring);
 					if(!texture)
 					{
 						errorstream<<"GenericCAO::updateTextures(): Could not load texture "<<texturestring<<std::endl;
