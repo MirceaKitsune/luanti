@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 std::string gob_cmd_set_properties(const ObjectProperties &prop)
 {
 	std::ostringstream os(std::ios::binary);
-	writeU8(os, GENERIC_CMD_SET_PROPERTIES);
+	writeU8(os, GENERIC_CMD_SET_ANIMATIONS);
 	prop.serialize(os);
 	return os.str();
 }
@@ -34,6 +34,21 @@ ObjectProperties gob_read_set_properties(std::istream &is)
 	ObjectProperties prop;
 	prop.deSerialize(is);
 	return prop;
+}
+
+std::string gob_cmd_set_animations(const ObjectAnimations &anim)
+{
+	std::ostringstream os(std::ios::binary);
+	writeU8(os, GENERIC_CMD_SET_ANIMATIONS);
+	anim.serialize(os);
+	return os.str();
+}
+
+ObjectProperties gob_read_set_animations(std::istream &is)
+{
+	ObjectProperties anim;
+	anim.deSerialize(is);
+	return anim;
 }
 
 std::string gob_cmd_update_position(

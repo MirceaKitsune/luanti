@@ -47,5 +47,17 @@ struct ObjectProperties
 	void deSerialize(std::istream &is);
 };
 
+struct ObjectAnimations
+{
+	// Values are BS=1
+	float speed;
+	v2f frames;
+
+	ObjectAnimations();
+	std::string dump();
+	void serialize(std::ostream &os) const;
+	void deSerialize(std::istream &is);
+};
+
 #endif
 

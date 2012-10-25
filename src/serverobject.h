@@ -47,6 +47,7 @@ struct ItemStack;
 class Player;
 struct ToolCapabilities;
 struct ObjectProperties;
+struct ObjectAnimations;
 
 class ServerActiveObject : public ActiveObject
 {
@@ -155,6 +156,10 @@ public:
 	virtual ObjectProperties* accessObjectProperties()
 	{ return NULL; }
 	virtual void notifyObjectPropertiesModified()
+	{}
+	virtual ObjectAnimations* accessObjectAnimations()
+	{ return NULL; }
+	virtual void notifyObjectAnimationsModified()
 	{}
 
 	// Inventory and wielded item

@@ -113,4 +113,35 @@ void ObjectProperties::deSerialize(std::istream &is)
 	}catch(SerializationError &e){}
 }
 
+ObjectAnimations::ObjectAnimations():
+	speed(1),
+	frames(0,0)
+{
+}
+
+std::string ObjectAnimations::dump()
+{
+	std::ostringstream os(std::ios::binary);
+	os<<"speed="<<speed;
+	os<<", frames="<<PP2(frames);
+	return os.str();
+}
+
+void ObjectAnimations::serialize(std::ostream &os) const
+{
+	writeU8(os, 1); // version
+	writeS16(os, speed);
+	writeV2F1000(os, frames);
+}
+
+void ObjectAnimations::deSerialize(std::istream &is)
+{
+	int version = readU8(is);
+	if(version != 1) throw SerializationError(
+			"unsupported Animations version");
+
+	speed = readS16(is);
+	frames = readV2F1000(is);
+}
+
 

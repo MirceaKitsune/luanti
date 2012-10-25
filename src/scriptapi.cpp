@@ -976,6 +976,22 @@ static void read_object_properties(lua_State *L, int index,
 	getfloatfield(L, -1, "automatic_rotate", prop->automatic_rotate);
 }
 
+static void read_animations(lua_State *L, int index,
+		ObjectAnimations *anim)
+{
+	if(index < 0)
+		index = lua_gettop(L) + 1 + index;
+	if(!lua_istable(L, index))
+		return;
+
+	anim->speed = getfloatfield_default(L, -1, "speed", 1);
+
+	lua_getfield(L, -1, "frames");
+	if(lua_istable(L, -1))
+		anim->frames = read_v2f(L, -1);
+	lua_pop(L, 1);
+}
+
 /*
 	ItemDefinition
 */
@@ -2712,6 +2728,20 @@ private:
 		return 0;
 	}
 
+	// set_animations(self, {x=num, y=num, z=num})
+	static int l_set_animations(lua_State *L)
+	{
+		ObjectRef *ref = checkobject(L, 1);
+		ServerActiveObject *co = getobject(ref);
+		if(co == NULL) return 0;
+		ObjectAnimations *anim = co->accessObjectAnimations();
+		if(!anim)
+			return 0;
+		read_animations(L, 2, anim);
+		co->notifyObjectAnimationsModified();
+		return 0;
+	}
+
 	/* LuaEntitySAO-only */
 
 	// setvelocity(self, {x=num, y=num, z=num})
@@ -3013,6 +3043,7 @@ const luaL_reg ObjectRef::methods[] = {
 	method(ObjectRef, set_wielded_item),
 	method(ObjectRef, set_armor_groups),
 	method(ObjectRef, set_properties),
+	method(ObjectRef, set_animations),
 	// LuaEntitySAO-only
 	method(ObjectRef, setvelocity),
 	method(ObjectRef, getvelocity),
@@ -6598,6 +6629,36 @@ void scriptapi_luaentity_get_properties(lua_State *L, u16 id,
 	// Read initial_properties
 	lua_getfield(L, -1, "initial_properties");
 	read_object_properties(L, -1, prop);
+	lua_pop(L, 1);
+}
+
+void scriptapi_luaentity_get_animations(lua_State *L, u16 id,
+		ObjectAnimations *anim)
+{
+	realitycheck(L);
+	assert(lua_checkstack(L, 20));
+	//infostream<<"scriptapi_luaentity_get_properties: id="<<id<<std::endl;
+	StackUnroller stack_unroller(L);
+
+	// Get minetest.luaentities[id]
+	luaentity_get(L, id);
+	//int object = lua_gettop(L);
+
+	// Set default values that differ from Animations defaults
+	anim->speed = 1;
+	
+	/* Read stuff */
+	
+	anim->speed = getfloatfield_default(L, -1, "speed", 1);
+
+	lua_getfield(L, -1, "frames");
+	if(lua_istable(L, -1))
+		anim->frames = read_v2f(L, -1);
+	lua_pop(L, 1);
+
+	// Read initial_properties
+	lua_getfield(L, -1, "initial_properties");
+	read_animations(L, -1, anim);
 	lua_pop(L, 1);
 }
 

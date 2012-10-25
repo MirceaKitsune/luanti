@@ -556,6 +556,7 @@ private:
 	bool m_is_local_player; // determined locally
 	// Property-ish things
 	ObjectProperties m_prop;
+	ObjectAnimations m_anim;
 	//
 	scene::ISceneManager *m_smgr;
 	IrrlichtDevice *m_irr;
@@ -861,6 +862,11 @@ public:
 		}
 		
 		updateNodePos();
+	}
+
+	void setAnimation()
+	{
+		errorstream<<"Animation speed: "<<m_anim.speed<<std::endl;
 	}
 
 	void expireVisuals()

@@ -31,6 +31,7 @@ class ServerEnvironment;
 class ServerActiveObject;
 typedef struct lua_State lua_State;
 struct ObjectProperties;
+struct ObjectAnimations;
 struct ItemStack;
 struct PointedThing;
 //class IGameDef;
@@ -172,6 +173,8 @@ void scriptapi_luaentity_rm(lua_State *L, u16 id);
 std::string scriptapi_luaentity_get_staticdata(lua_State *L, u16 id);
 void scriptapi_luaentity_get_properties(lua_State *L, u16 id,
 		ObjectProperties *prop);
+void scriptapi_luaentity_get_animations(lua_State *L, u16 id,
+		ObjectAnimations *anim);
 void scriptapi_luaentity_step(lua_State *L, u16 id, float dtime);
 void scriptapi_luaentity_punch(lua_State *L, u16 id,
 		ServerActiveObject *puncher, float time_from_last_punch,

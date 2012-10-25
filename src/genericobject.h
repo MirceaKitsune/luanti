@@ -25,14 +25,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <iostream>
 
 #define GENERIC_CMD_SET_PROPERTIES 0
-#define GENERIC_CMD_UPDATE_POSITION 1
-#define GENERIC_CMD_SET_TEXTURE_MOD 2
-#define GENERIC_CMD_SET_SPRITE 3
-#define GENERIC_CMD_PUNCHED 4
-#define GENERIC_CMD_UPDATE_ARMOR_GROUPS 5
+#define GENERIC_CMD_SET_ANIMATIONS 1
+#define GENERIC_CMD_UPDATE_POSITION 2
+#define GENERIC_CMD_SET_TEXTURE_MOD 3
+#define GENERIC_CMD_SET_SPRITE 4
+#define GENERIC_CMD_PUNCHED 5
+#define GENERIC_CMD_UPDATE_ARMOR_GROUPS 6
 
 #include "object_properties.h"
 std::string gob_cmd_set_properties(const ObjectProperties &prop);
+std::string gob_cmd_set_animations(const ObjectAnimations &anim);
 ObjectProperties gob_read_set_properties(std::istream &is);
 
 std::string gob_cmd_update_position(
