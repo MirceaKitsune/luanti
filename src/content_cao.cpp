@@ -805,7 +805,7 @@ public:
 			if(mesh)
 			{
 				m_animated_meshnode = smgr->addAnimatedMeshSceneNode(mesh, NULL);
-				
+				m_animated_meshnode->animateJoints(); // Needed for some animations
 				m_animated_meshnode->setScale(v3f(m_prop.visual_size.X,
 						m_prop.visual_size.Y,
 						m_prop.visual_size.X));
@@ -1142,6 +1142,7 @@ public:
 
 		m_animated_meshnode->setFrameLoop(m_prop.animation_frames.X, m_prop.animation_frames.Y);
 		m_animated_meshnode->setAnimationSpeed(m_prop.animation_speed);
+		m_animated_meshnode->setTransitionTime(m_prop.animation_blend);
 	}
 
 	void processMessage(const std::string &data)

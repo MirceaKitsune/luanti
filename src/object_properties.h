@@ -35,6 +35,7 @@ struct ObjectProperties
 	std::string mesh;
 	core::vector2d<int> animation_frames;
 	float animation_speed;
+	float animation_blend;
 	v2f visual_size;
 	core::array<std::string> textures;
 	v2s16 spritediv;

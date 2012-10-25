@@ -32,7 +32,8 @@ ObjectProperties::ObjectProperties():
 	visual("sprite"),
 	mesh(""),
 	animation_frames(1,1),
-	animation_speed(1),
+	animation_speed(15),
+	animation_blend(1),
 	visual_size(1,1),
 	spritediv(1,1),
 	initial_sprite_basepos(0,0),
@@ -54,6 +55,7 @@ std::string ObjectProperties::dump()
 	os<<", mesh="<<mesh;
 	os<<", animation_frames="<<animation_frames.X<<","<<animation_frames.Y;
 	os<<", animation_speed="<<animation_speed;
+	os<<", animation_blend="<<animation_blend;
 	os<<", visual_size="<<PP2(visual_size);
 	os<<", textures=[";
 	for(u32 i=0; i<textures.size(); i++){
@@ -81,6 +83,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 	writeF1000(os, animation_frames.X);
 	writeF1000(os, animation_frames.Y);
 	writeF1000(os, animation_speed);
+	writeF1000(os, animation_blend);
 	writeV2F1000(os, visual_size);
 	writeU16(os, textures.size());
 	for(u32 i=0; i<textures.size(); i++){
@@ -108,6 +111,7 @@ void ObjectProperties::deSerialize(std::istream &is)
 	animation_frames.X = readF1000(is);
 	animation_frames.Y = readF1000(is);
 	animation_speed = readF1000(is);
+	animation_blend = readF1000(is);
 	visual_size = readV2F1000(is);
 	textures.clear();
 	u32 texture_count = readU16(is);

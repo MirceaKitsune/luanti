@@ -957,6 +957,8 @@ static void read_object_properties(lua_State *L, int index,
 
 	getfloatfield(L, -1, "animation_speed", prop->animation_speed);
 
+	getfloatfield(L, -1, "animation_blend", prop->animation_blend);
+
 	lua_getfield(L, -1, "textures");
 	if(lua_istable(L, -1)){
 		prop->textures.clear();
