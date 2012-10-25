@@ -1224,6 +1224,8 @@ Object Properties
     visual = "cube"/"sprite"/"upright_sprite"/"mesh",
     visual_size = {x=1, y=1},
     mesh = "model",
+    animation_frames = {1, 1},
+    animation_speed = 15,
     textures = {}, -- number of required textures depends on visual
     spritediv = {x=1, y=1},
     initial_sprite_basepos = {x=0, y=0},

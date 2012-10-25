@@ -31,6 +31,8 @@ ObjectProperties::ObjectProperties():
 	collisionbox(-0.5,-0.5,-0.5, 0.5,0.5,0.5),
 	visual("sprite"),
 	mesh(""),
+	animation_frames(1,1),
+	animation_speed(1),
 	visual_size(1,1),
 	spritediv(1,1),
 	initial_sprite_basepos(0,0),
@@ -50,6 +52,8 @@ std::string ObjectProperties::dump()
 	os<<", collisionbox="<<PP(collisionbox.MinEdge)<<","<<PP(collisionbox.MaxEdge);
 	os<<", visual="<<visual;
 	os<<", mesh="<<mesh;
+	os<<", animation_frames="<<animation_frames.X<<","<<animation_frames.Y;
+	os<<", animation_speed="<<animation_speed;
 	os<<", visual_size="<<PP2(visual_size);
 	os<<", textures=[";
 	for(u32 i=0; i<textures.size(); i++){
@@ -74,6 +78,9 @@ void ObjectProperties::serialize(std::ostream &os) const
 	writeV3F1000(os, collisionbox.MaxEdge);
 	os<<serializeString(visual);
 	os<<serializeString(mesh);
+	writeF1000(os, animation_frames.X);
+	writeF1000(os, animation_frames.Y);
+	writeF1000(os, animation_speed);
 	writeV2F1000(os, visual_size);
 	writeU16(os, textures.size());
 	for(u32 i=0; i<textures.size(); i++){
@@ -98,6 +105,9 @@ void ObjectProperties::deSerialize(std::istream &is)
 	collisionbox.MaxEdge = readV3F1000(is);
 	visual = deSerializeString(is);
 	mesh = deSerializeString(is);
+	animation_frames.X = readF1000(is);
+	animation_frames.Y = readF1000(is);
+	animation_speed = readF1000(is);
 	visual_size = readV2F1000(is);
 	textures.clear();
 	u32 texture_count = readU16(is);

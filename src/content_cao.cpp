@@ -922,6 +922,7 @@ public:
 			m_visuals_expired = false;
 			removeFromScene();
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
+			updateAnimations();
 		}
 
 		if(m_prop.physical){
@@ -978,8 +979,6 @@ public:
 		}
 
 		updateTexturePos();
-
-		updateAnimations();
 
 		if(m_reset_textures_timer >= 0){
 			m_reset_textures_timer -= dtime;
@@ -1141,7 +1140,8 @@ public:
 		if(!m_animated_meshnode)
 			return;
 
-		m_animated_meshnode->setFrameLoop(0, 50);
+		m_animated_meshnode->setFrameLoop(m_prop.animation_frames.X, m_prop.animation_frames.Y);
+		m_animated_meshnode->setAnimationSpeed(m_prop.animation_speed);
 	}
 
 	void processMessage(const std::string &data)

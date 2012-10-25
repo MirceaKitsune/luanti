@@ -944,6 +944,19 @@ static void read_object_properties(lua_State *L, int index,
 		prop->visual_size = read_v2f(L, -1);
 	lua_pop(L, 1);
 
+	lua_getfield(L, -1, "animation_frames");
+	if(lua_istable(L, -1))
+	{
+		lua_rawgeti (L, -1, 1);
+		lua_rawgeti (L, -2, 2);
+		prop->animation_frames.X = lua_tonumber(L, -2);
+		prop->animation_frames.Y = lua_tonumber(L, -1);
+		lua_pop(L, 2);
+	}
+	lua_pop(L, 1);
+
+	getfloatfield(L, -1, "animation_speed", prop->animation_speed);
+
 	lua_getfield(L, -1, "textures");
 	if(lua_istable(L, -1)){
 		prop->textures.clear();
