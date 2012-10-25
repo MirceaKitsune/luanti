@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "object_properties.h"
 #include "util/serialize.h"
 #include <sstream>
+#include <map>
 
 #define PP(x) "("<<(x).X<<","<<(x).Y<<","<<(x).Z<<")"
 #define PP2(x) "("<<(x).X<<","<<(x).Y<<")"
@@ -84,6 +85,11 @@ void ObjectProperties::serialize(std::ostream &os) const
 	writeF1000(os, animation_frames.Y);
 	writeF1000(os, animation_speed);
 	writeF1000(os, animation_blend);
+	writeU16(os, animation_bone_position.size());
+	for(std::map<std::string, v3f>::const_iterator ii = animation_bone_position.begin(); ii != animation_bone_position.end(); ++ii){
+		os<<serializeString((*ii).first);
+		writeV3F1000(os, (*ii).second);
+	}
 	writeV2F1000(os, visual_size);
 	writeU16(os, textures.size());
 	for(u32 i=0; i<textures.size(); i++){
@@ -112,6 +118,14 @@ void ObjectProperties::deSerialize(std::istream &is)
 	animation_frames.Y = readF1000(is);
 	animation_speed = readF1000(is);
 	animation_blend = readF1000(is);
+
+	u32 animation_bone_position_count = readU16(is);
+	for(u32 i=0; i<animation_bone_position_count; i++){
+		std::string bone_name = deSerializeString(is);
+		v3f bone_pos = readV3F1000(is);
+		animation_bone_position[bone_name] = bone_pos;
+	}
+
 	visual_size = readV2F1000(is);
 	textures.clear();
 	u32 texture_count = readU16(is);

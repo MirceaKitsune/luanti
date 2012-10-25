@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <string>
 #include "irrlichttypes_bloated.h"
 #include <iostream>
+#include <map>
 
 struct ObjectProperties
 {
@@ -36,6 +37,8 @@ struct ObjectProperties
 	core::vector2d<int> animation_frames;
 	float animation_speed;
 	float animation_blend;
+	std::map<std::string, v3f> animation_bone_position;
+	std::map<std::string, v3f> animation_bone_rotation;
 	v2f visual_size;
 	core::array<std::string> textures;
 	v2s16 spritediv;
@@ -43,6 +46,7 @@ struct ObjectProperties
 	bool is_visible;
 	bool makes_footstep_sound;
 	float automatic_rotate;
+
 
 	ObjectProperties();
 	std::string dump();
