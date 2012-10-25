@@ -556,7 +556,6 @@ private:
 	bool m_is_local_player; // determined locally
 	// Property-ish things
 	ObjectProperties m_prop;
-	ObjectAnimations m_anim;
 	//
 	scene::ISceneManager *m_smgr;
 	IrrlichtDevice *m_irr;
@@ -864,11 +863,6 @@ public:
 		updateNodePos();
 	}
 
-	void setAnimation()
-	{
-		errorstream<<"Animation speed: "<<m_anim.speed<<std::endl;
-	}
-
 	void expireVisuals()
 	{
 		m_visuals_expired = true;
@@ -984,6 +978,8 @@ public:
 		}
 
 		updateTexturePos();
+
+		updateAnimations();
 
 		if(m_reset_textures_timer >= 0){
 			m_reset_textures_timer -= dtime;
@@ -1138,6 +1134,14 @@ public:
 				}
 			}
 		}
+	}
+
+	void updateAnimations()
+	{
+		if(!m_animated_meshnode)
+			return;
+
+		m_animated_meshnode->setFrameLoop(0, 50);
 	}
 
 	void processMessage(const std::string &data)

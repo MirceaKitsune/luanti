@@ -350,7 +350,6 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos,
 	m_acceleration(0,0,0),
 	m_yaw(0),
 	m_properties_sent(true),
-	m_animations_sent(true),
 	m_last_sent_yaw(0),
 	m_last_sent_position(0,0,0),
 	m_last_sent_velocity(0,0,0),
@@ -441,15 +440,6 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 		m_messages_out.push_back(aom);
 	}
 
-	if(!m_animations_sent)
-	{
-		m_animations_sent = true;
-		std::string str = getAnimationPacket();
-		// create message and add to list
-		ActiveObjectMessage aom(getId(), true, str);
-		m_messages_out.push_back(aom);
-	}
-
 	m_last_sent_position_timer += dtime;
 	
 	if(m_prop.physical){
@@ -520,8 +510,7 @@ std::string LuaEntitySAO::getClientInitializationData()
 	writeS16(os, m_hp);
 	writeU8(os, 2); // number of messages stuffed in here
 	os<<serializeLongString(getPropertyPacket()); // message 1
-	os<<serializeLongString(getAnimationPacket()); // message 2
-	os<<serializeLongString(gob_cmd_update_armor_groups(m_armor_groups)); // 3
+	os<<serializeLongString(gob_cmd_update_armor_groups(m_armor_groups)); // 2
 	// return result
 	return os.str();
 }
@@ -665,19 +654,9 @@ void LuaEntitySAO::notifyObjectPropertiesModified()
 	m_properties_sent = false;
 }
 
-void LuaEntitySAO::notifyObjectAnimationsModified()
-{
-	m_animations_sent = false;
-}
-
 void LuaEntitySAO::setVelocity(v3f velocity)
 {
 	m_velocity = velocity;
-}
-
-ObjectAnimations* LuaEntitySAO::accessObjectAnimations()
-{
-	return &m_anim;
 }
 
 v3f LuaEntitySAO::getVelocity()
@@ -727,11 +706,6 @@ void LuaEntitySAO::setSprite(v2s16 p, int num_frames, float framelength,
 	m_messages_out.push_back(aom);
 }
 
-void LuaEntitySAO::setAnimation(v3f velocity)
-{
-	m_velocity = velocity;
-}
-
 std::string LuaEntitySAO::getName()
 {
 	return m_init_name;
@@ -740,11 +714,6 @@ std::string LuaEntitySAO::getName()
 std::string LuaEntitySAO::getPropertyPacket()
 {
 	return gob_cmd_set_properties(m_prop);
-}
-
-std::string LuaEntitySAO::getAnimationPacket()
-{
-	return gob_cmd_set_animations(m_anim);
 }
 
 void LuaEntitySAO::sendPosition(bool do_interpolate, bool is_movement_end)
@@ -794,7 +763,6 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, Player *player_, u16 peer_id_,
 	m_position_not_sent(false),
 	m_armor_groups_sent(false),
 	m_properties_sent(true),
-	m_animations_sent(true),
 	m_privs(privs),
 	m_is_singleplayer(is_singleplayer),
 	// public
@@ -881,8 +849,7 @@ std::string PlayerSAO::getClientInitializationData()
 	writeS16(os, getHP());
 	writeU8(os, 2); // number of messages stuffed in here
 	os<<serializeLongString(getPropertyPacket()); // message 1
-	os<<serializeLongString(getAnimationPacket()); // message 2
-	os<<serializeLongString(gob_cmd_update_armor_groups(m_armor_groups)); // 3
+	os<<serializeLongString(gob_cmd_update_armor_groups(m_armor_groups)); // 2
 	return os.str();
 }
 
@@ -898,15 +865,6 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	{
 		m_properties_sent = true;
 		std::string str = getPropertyPacket();
-		// create message and add to list
-		ActiveObjectMessage aom(getId(), true, str);
-		m_messages_out.push_back(aom);
-	}
-
-	if(!m_animations_sent)
-	{
-		m_animations_sent = true;
-		std::string str = getAnimationPacket();
 		// create message and add to list
 		ActiveObjectMessage aom(getId(), true, str);
 		m_messages_out.push_back(aom);
@@ -1129,16 +1087,6 @@ void PlayerSAO::notifyObjectPropertiesModified()
 	m_properties_sent = false;
 }
 
-ObjectAnimations* PlayerSAO::accessObjectAnimations()
-{
-	return &m_anim;
-}
-
-void PlayerSAO::notifyObjectAnimationsModified()
-{
-	m_animations_sent = false;
-}
-
 Inventory* PlayerSAO::getInventory()
 {
 	return m_inventory;
@@ -1194,10 +1142,5 @@ std::string PlayerSAO::getPropertyPacket()
 {
 	m_prop.is_visible = (getHP() != 0);
 	return gob_cmd_set_properties(m_prop);
-}
-
-std::string PlayerSAO::getAnimationPacket()
-{
-	return gob_cmd_set_animations(m_anim);
 }
 

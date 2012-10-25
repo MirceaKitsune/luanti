@@ -228,10 +228,8 @@ public:
 			if(event.KeyInput.PressedDown) {
 				keyIsDown.set(event.KeyInput);
 				keyWasDown.set(event.KeyInput);
-				errorstream<<"Key pressed: "<<event.KeyInput.Key<<std::endl;
 			} else {
 				keyIsDown.unset(event.KeyInput);
-				errorstream<<"Key unpressed: "<<event.KeyInput.Key<<std::endl;
 			}
 		}
 

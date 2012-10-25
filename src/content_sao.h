@@ -63,8 +63,6 @@ public:
 	void setArmorGroups(const ItemGroupList &armor_groups);
 	ObjectProperties* accessObjectProperties();
 	void notifyObjectPropertiesModified();
-	ObjectAnimations* accessObjectAnimations();
-	void notifyObjectAnimationsModified();
 	/* LuaEntitySAO-specific */
 	void setVelocity(v3f velocity);
 	v3f getVelocity();
@@ -75,18 +73,15 @@ public:
 	void setTextureMod(const std::string &mod);
 	void setSprite(v2s16 p, int num_frames, float framelength,
 			bool select_horiz_by_yawpitch);
-	void setAnimation(v3f velocity);
 	std::string getName();
 private:
 	std::string getPropertyPacket();
-	std::string getAnimationPacket();
 	void sendPosition(bool do_interpolate, bool is_movement_end);
 
 	std::string m_init_name;
 	std::string m_init_state;
 	bool m_registered;
 	struct ObjectProperties m_prop;
-	struct ObjectAnimations m_anim;
 	
 	s16 m_hp;
 	v3f m_velocity;
@@ -95,7 +90,6 @@ private:
 	ItemGroupList m_armor_groups;
 	
 	bool m_properties_sent;
-	bool m_animations_sent;
 	float m_last_sent_yaw;
 	v3f m_last_sent_position;
 	v3f m_last_sent_velocity;
@@ -150,8 +144,6 @@ public:
 	void setArmorGroups(const ItemGroupList &armor_groups);
 	ObjectProperties* accessObjectProperties();
 	void notifyObjectPropertiesModified();
-	ObjectAnimations* accessObjectAnimations();
-	void notifyObjectAnimationsModified();
 
 	/*
 		Inventory interface
@@ -221,7 +213,6 @@ public:
 
 private:
 	std::string getPropertyPacket();
-	std::string getAnimationPacket();
 	
 	Player *m_player;
 	u16 m_peer_id;
@@ -239,9 +230,7 @@ private:
 	ItemGroupList m_armor_groups;
 	bool m_armor_groups_sent;
 	bool m_properties_sent;
-	bool m_animations_sent;
 	struct ObjectProperties m_prop;
-	struct ObjectAnimations m_anim;
 	// Cached privileges for enforcement
 	std::set<std::string> m_privs;
 	bool m_is_singleplayer;
