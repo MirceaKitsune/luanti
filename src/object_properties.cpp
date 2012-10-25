@@ -33,7 +33,7 @@ ObjectProperties::ObjectProperties():
 	mesh(""),
 	animation_frames(1,1),
 	animation_speed(15),
-	animation_blend(1),
+	animation_blend(0),
 	visual_size(1,1),
 	spritediv(1,1),
 	initial_sprite_basepos(0,0),

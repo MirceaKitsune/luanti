@@ -1226,7 +1226,7 @@ Object Properties
     mesh = "model",
     animation_frames = {1, 1},
     animation_speed = 15,
-    animation_blend = 1,
+    animation_blend = 0,
     textures = {}, -- number of required textures depends on visual
     spritediv = {x=1, y=1},
     initial_sprite_basepos = {x=0, y=0},
