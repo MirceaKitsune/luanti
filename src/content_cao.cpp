@@ -579,6 +579,7 @@ private:
 	v2f m_frames;
 	int m_frame_speed;
 	int m_frame_blend;
+	std::map<std::string, core::vector2d<v3f> > m_bone_posrot;
 	int m_anim_frame;
 	int m_anim_num_frames;
 	float m_anim_framelength;
@@ -928,6 +929,7 @@ public:
 			removeFromScene();
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
 			updateAnimations();
+			updateBonePosRot();
 		}
 
 		if(m_prop.physical){
@@ -1148,24 +1150,19 @@ public:
 		m_animated_meshnode->setFrameLoop((int)m_frames.X, (int)m_frames.Y);
 		m_animated_meshnode->setAnimationSpeed(m_frame_speed);
 		m_animated_meshnode->setTransitionTime(m_frame_blend);
+	}
 
-		if(m_prop.animation_bone_position.size() > 0)
+	void updateBonePosRot()
+	{
+		if(m_bone_posrot.size() > 0)
 		{
-			for(std::map<std::string, v3f>::const_iterator ii = m_prop.animation_bone_position.begin(); ii != m_prop.animation_bone_position.end(); ++ii){
-				m_animated_meshnode->setJointMode(irr::scene::EJUOR_CONTROL); // To write positions to the mesh on render
+			m_animated_meshnode->setJointMode(irr::scene::EJUOR_CONTROL); // To write positions to the mesh on render
+			for(std::map<std::string, core::vector2d<v3f> >::const_iterator ii = m_bone_posrot.begin(); ii != m_bone_posrot.end(); ++ii){
 				std::string bone_name = (*ii).first;
-				v3f bone_pos = (*ii).second;
+				v3f bone_pos = (*ii).second.X;
+				v3f bone_rot = (*ii).second.Y;
 				irr::scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
 				bone->setPosition(bone_pos);
-			}
-		}
-		if(m_prop.animation_bone_rotation.size() > 0)
-		{
-			for(std::map<std::string, v3f>::const_iterator ii = m_prop.animation_bone_rotation.begin(); ii != m_prop.animation_bone_rotation.end(); ++ii){
-				m_animated_meshnode->setJointMode(irr::scene::EJUOR_CONTROL); // To write positions to the mesh on render
-				std::string bone_name = (*ii).first;
-				v3f bone_rot = (*ii).second;
-				irr::scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
 				bone->setRotation(bone_rot);
 			}
 		}
@@ -1245,6 +1242,16 @@ public:
 			m_frame_blend = readF1000(is);
 
 			updateAnimations();
+			expireVisuals();
+		}
+		else if(cmd == GENERIC_CMD_SET_BONE_POSROT)
+		{
+			std::string bone = deSerializeString(is);
+			v3f position = readV3F1000(is);
+			v3f rotation = readV3F1000(is);
+			m_bone_posrot[bone] = core::vector2d<v3f>(position, rotation);
+
+			updateBonePosRot();
 			expireVisuals();
 		}
 		else if(cmd == GENERIC_CMD_PUNCHED)

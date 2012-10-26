@@ -62,6 +62,7 @@ public:
 	s16 getHP() const;
 	void setArmorGroups(const ItemGroupList &armor_groups);
 	void setAnimations(v2f frames, float frame_speed, float frame_blend);
+	void setBonePosRot(std::string bone, v3f position, v3f rotation);
 	ObjectProperties* accessObjectProperties();
 	void notifyObjectPropertiesModified();
 	/* LuaEntitySAO-specific */
@@ -144,6 +145,7 @@ public:
 	
 	void setArmorGroups(const ItemGroupList &armor_groups);
 	void setAnimations(v2f frames, float frame_speed, float frame_blend);
+	void setBonePosRot(std::string bone, v3f position, v3f rotation);
 	ObjectProperties* accessObjectProperties();
 	void notifyObjectPropertiesModified();
 

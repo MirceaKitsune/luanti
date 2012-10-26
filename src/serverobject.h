@@ -154,6 +154,8 @@ public:
 	{}
 	virtual void setAnimations(v2f frames, float frame_speed, float frame_blend)
 	{}
+	virtual void setBonePosRot(std::string bone, v3f position, v3f rotation)
+	{}
 	virtual ObjectProperties* accessObjectProperties()
 	{ return NULL; }
 	virtual void notifyObjectPropertiesModified()
