@@ -1148,7 +1148,11 @@ public:
 
 		for(std::map<std::string, v3f>::const_iterator ii = m_prop.animation_bone_position.begin(); ii != m_prop.animation_bone_position.end(); ++ii){
 			if((*ii).second.X || (*ii).second.Y || (*ii).second.Z) { }
-			// Bone setting will go here
+			// Bone positioning code will go here
+		}
+		for(std::map<std::string, v3f>::const_iterator ii = m_prop.animation_bone_rotation.begin(); ii != m_prop.animation_bone_rotation.end(); ++ii){
+			if((*ii).second.X || (*ii).second.Y || (*ii).second.Z) { }
+			// Bone rotation code will go here
 		}
 	}
 
