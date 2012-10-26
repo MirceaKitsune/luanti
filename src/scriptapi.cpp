@@ -2757,6 +2757,20 @@ private:
 		return 0;
 	}
 
+// Part of the attachment structure, not used yet!
+	// setattachment() // <- parameters here
+	static int l_set_attachment(lua_State *L)
+	{
+		ObjectRef *ref = checkobject(L, 1);
+		ServerActiveObject *co = getobject(ref);
+		if(co == NULL) return 0;
+		// Do it
+
+		// Get properties here.
+		co->setAttachment(); // <- parameters here
+		return 0;
+	}
+
 	// set_properties(self, properties)
 	static int l_set_properties(lua_State *L)
 	{

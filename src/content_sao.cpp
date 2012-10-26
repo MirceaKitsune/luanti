@@ -660,6 +660,15 @@ void LuaEntitySAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 	m_messages_out.push_back(aom);
 }
 
+// Part of the attachment structure, not used yet!
+void LuaEntitySAO::setAttachment() // <- parameters here
+{
+	std::string str = gob_cmd_set_attachment(); // <- parameters here
+	// create message and add to list
+	ActiveObjectMessage aom(getId(), true, str);
+	m_messages_out.push_back(aom);
+}
+
 ObjectProperties* LuaEntitySAO::accessObjectProperties()
 {
 	return &m_prop;
@@ -1106,6 +1115,15 @@ void PlayerSAO::setAnimations(v2f frames, float frame_speed, float frame_blend)
 void PlayerSAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 {
 	std::string str = gob_cmd_set_bone_posrot(bone, position, rotation);
+	// create message and add to list
+	ActiveObjectMessage aom(getId(), true, str);
+	m_messages_out.push_back(aom);
+}
+
+// Part of the attachment structure, not used yet!
+void PlayerSAO::setAttachment() // <- parameters here
+{
+	std::string str = gob_cmd_set_attachment(); // <- parameters here
 	// create message and add to list
 	ActiveObjectMessage aom(getId(), true, str);
 	m_messages_out.push_back(aom);

@@ -930,6 +930,7 @@ public:
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
 			updateAnimations();
 			updateBonePosRot();
+			updateAttachment();
 		}
 
 		if(m_prop.physical){
@@ -1190,6 +1191,11 @@ public:
 		}
 	}
 
+	void updateAttachment()
+	{
+		// Code for attachments goes here
+	}
+
 	void processMessage(const std::string &data)
 	{
 		//infostream<<"GenericCAO: Got message"<<std::endl;
@@ -1274,6 +1280,15 @@ public:
 			m_bone_posrot[bone] = core::vector2d<v3f>(position, rotation);
 
 			updateBonePosRot();
+			expireVisuals();
+		}
+		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
+		{
+			// Part of the attachment structure, not used yet!
+
+			// Get properties here.
+
+			updateAttachment();
 			expireVisuals();
 		}
 		else if(cmd == GENERIC_CMD_PUNCHED)
