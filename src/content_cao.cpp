@@ -576,8 +576,7 @@ private:
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set;
 	bool m_tx_select_horiz_by_yawpitch;
-	int m_frame_start;
-	int m_frame_end;
+	v2f m_frames;
 	int m_frame_speed;
 	int m_frame_blend;
 	int m_anim_frame;
@@ -1146,7 +1145,7 @@ public:
 		if(!m_animated_meshnode)
 			return;
 
-		m_animated_meshnode->setFrameLoop(m_frame_start, m_frame_end);
+		m_animated_meshnode->setFrameLoop((int)m_frames.X, (int)m_frames.Y);
 		m_animated_meshnode->setAnimationSpeed(m_frame_speed);
 		m_animated_meshnode->setTransitionTime(m_frame_blend);
 
@@ -1241,8 +1240,7 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ANIMATIONS)
 		{
-			m_frame_start = readU16(is);
-			m_frame_end = readU16(is);
+			m_frames = readV2F1000(is);
 			m_frame_speed = readF1000(is);
 			m_frame_blend = readF1000(is);
 

@@ -61,7 +61,7 @@ public:
 	void setHP(s16 hp);
 	s16 getHP() const;
 	void setArmorGroups(const ItemGroupList &armor_groups);
-	void setAnimations(int frame_start, int frame_end, float frame_speed, float frame_blend);
+	void setAnimations(v2f frames, float frame_speed, float frame_blend);
 	ObjectProperties* accessObjectProperties();
 	void notifyObjectPropertiesModified();
 	/* LuaEntitySAO-specific */
@@ -143,7 +143,7 @@ public:
 	void setHP(s16 hp);
 	
 	void setArmorGroups(const ItemGroupList &armor_groups);
-	void setAnimations(int frame_start, int frame_end, float frame_speed, float frame_blend);
+	void setAnimations(v2f frames, float frame_speed, float frame_blend);
 	ObjectProperties* accessObjectProperties();
 	void notifyObjectPropertiesModified();
 

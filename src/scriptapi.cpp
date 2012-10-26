@@ -2722,27 +2722,24 @@ private:
 		return 0;
 	}
 
-	// setanimations(self, mod)
+	// setanimations(self, frames, frame_speed, frame_blend)
 	static int l_setanimations(lua_State *L)
 	{
 		ObjectRef *ref = checkobject(L, 1);
 		ServerActiveObject *co = getobject(ref);
 		if(co == NULL) return 0;
 		// Do it
-		v2s16 p(0,0);
-		int frame_start = 0;
+
+		v2f frames = v2f(1, 1);
 		if(!lua_isnil(L, 2))
-			frame_start = lua_tonumber(L, 2);
-		int frame_end = 0;
-		if(!lua_isnil(L, 3))
-			frame_end = lua_tonumber(L, 3);
+			frames = read_v2f(L, 2);
 		float frame_speed = 15;
-		if(!lua_isnil(L, 4))
-			frame_speed = lua_tonumber(L, 4);
+		if(!lua_isnil(L, 3))
+			frame_speed = lua_tonumber(L, 3);
 		float frame_blend = 0;
-		if(!lua_isnil(L, 5))
-			frame_blend = lua_tonumber(L, 5);
-		co->setAnimations(frame_start, frame_end, frame_speed, frame_blend);
+		if(!lua_isnil(L, 4))
+			frame_blend = lua_tonumber(L, 4);
+		co->setAnimations(frames, frame_speed, frame_blend);
 		return 0;
 	}
 
