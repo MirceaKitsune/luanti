@@ -1146,13 +1146,25 @@ public:
 		m_animated_meshnode->setAnimationSpeed(m_prop.animation_speed);
 		m_animated_meshnode->setTransitionTime(m_prop.animation_blend);
 
-		for(std::map<std::string, v3f>::const_iterator ii = m_prop.animation_bone_position.begin(); ii != m_prop.animation_bone_position.end(); ++ii){
-			if((*ii).second.X || (*ii).second.Y || (*ii).second.Z) { }
-			// Bone positioning code will go here
+		if(m_prop.animation_bone_position.size() > 0)
+		{
+			for(std::map<std::string, v3f>::const_iterator ii = m_prop.animation_bone_position.begin(); ii != m_prop.animation_bone_position.end(); ++ii){
+				m_animated_meshnode->setJointMode(irr::scene::EJUOR_CONTROL); // To write positions to the mesh on render
+				std::string bone_name = (*ii).first;
+				v3f bone_pos = (*ii).second;
+				irr::scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
+				bone->setPosition(bone_pos);
+			}
 		}
-		for(std::map<std::string, v3f>::const_iterator ii = m_prop.animation_bone_rotation.begin(); ii != m_prop.animation_bone_rotation.end(); ++ii){
-			if((*ii).second.X || (*ii).second.Y || (*ii).second.Z) { }
-			// Bone rotation code will go here
+		if(m_prop.animation_bone_rotation.size() > 0)
+		{
+			for(std::map<std::string, v3f>::const_iterator ii = m_prop.animation_bone_rotation.begin(); ii != m_prop.animation_bone_rotation.end(); ++ii){
+				m_animated_meshnode->setJointMode(irr::scene::EJUOR_CONTROL); // To write positions to the mesh on render
+				std::string bone_name = (*ii).first;
+				v3f bone_rot = (*ii).second;
+				irr::scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
+				bone->setRotation(bone_rot);
+			}
 		}
 	}
 

@@ -42,8 +42,8 @@ ObjectProperties::ObjectProperties():
 	makes_footstep_sound(false),
 	automatic_rotate(0)
 {
-	animation_bone_position[""] = v3f(0,0,0);
-	animation_bone_rotation[""] = v3f(0,0,0);
+	// Nothing to do for animation_bone_position
+	// Nothing to do for animation_bone_rotation
 	textures.push_back("unknown_object.png");
 }
 
