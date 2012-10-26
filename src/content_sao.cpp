@@ -804,6 +804,8 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, Player *player_, u16 peer_id_,
 	m_prop.textures.clear();
 	m_prop.textures.push_back("player.png");
 	m_prop.textures.push_back("player_back.png");
+	m_prop.colors.clear();
+	m_prop.colors.push_back(video::SColor(255, 255, 255, 255));
 	m_prop.spritediv = v2s16(1,1);
 	// end of default appearance
 	m_prop.is_visible = (getHP() != 0); // TODO: Use a death animation instead for mesh players

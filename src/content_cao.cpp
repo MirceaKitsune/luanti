@@ -1062,6 +1062,10 @@ public:
 				texturestring += mod;
 				m_spritenode->setMaterialTexture(0,
 						tsrc->getTextureRaw(texturestring));
+
+				// Does not work yet with the current lighting settings
+				m_meshnode->getMaterial(0).AmbientColor = m_prop.colors[0];
+				m_meshnode->getMaterial(0).DiffuseColor = m_prop.colors[0];
 			}
 		}
 		if(m_animated_meshnode)
@@ -1086,6 +1090,12 @@ public:
 					video::SMaterial& material = m_animated_meshnode->getMaterial(i);
 					material.setFlag(video::EMF_LIGHTING, false);
 					material.setFlag(video::EMF_BILINEAR_FILTER, false);
+				}
+				for (u32 i = 0; i < m_prop.colors.size(); ++i)
+				{
+					// Does not work yet with the current lighting settings
+					m_animated_meshnode->getMaterial(i).AmbientColor = m_prop.colors[i];
+					m_animated_meshnode->getMaterial(i).DiffuseColor = m_prop.colors[i];
 				}
 			}
 		}
@@ -1113,6 +1123,10 @@ public:
 					material.setTexture(0, atlas);
 					material.getTextureMatrix(0).setTextureTranslate(pos.X, pos.Y);
 					material.getTextureMatrix(0).setTextureScale(size.X, size.Y);
+
+					// Does not work yet with the current lighting settings
+					m_meshnode->getMaterial(i).AmbientColor = m_prop.colors[i];
+					m_meshnode->getMaterial(i).DiffuseColor = m_prop.colors[i];
 				}
 			}
 			else if(m_prop.visual == "upright_sprite")
@@ -1126,6 +1140,10 @@ public:
 					scene::IMeshBuffer *buf = mesh->getMeshBuffer(0);
 					buf->getMaterial().setTexture(0,
 							tsrc->getTextureRaw(tname));
+					
+					// Does not work yet with the current lighting settings
+					m_meshnode->getMaterial(0).AmbientColor = m_prop.colors[0];
+					m_meshnode->getMaterial(0).DiffuseColor = m_prop.colors[0];
 				}
 				{
 					std::string tname = "unknown_object.png";
@@ -1137,6 +1155,10 @@ public:
 					scene::IMeshBuffer *buf = mesh->getMeshBuffer(1);
 					buf->getMaterial().setTexture(0,
 							tsrc->getTextureRaw(tname));
+
+					// Does not work yet with the current lighting settings
+					m_meshnode->getMaterial(1).AmbientColor = m_prop.colors[1]; 
+					m_meshnode->getMaterial(1).DiffuseColor = m_prop.colors[1]; 
 				}
 			}
 		}

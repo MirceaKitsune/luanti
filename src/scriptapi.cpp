@@ -960,6 +960,23 @@ static void read_object_properties(lua_State *L, int index,
 		}
 	}
 	lua_pop(L, 1);
+
+	lua_getfield(L, -1, "colors");
+	if(lua_istable(L, -1)){
+		prop->colors.clear();
+		int table = lua_gettop(L);
+		lua_pushnil(L);
+		while(lua_next(L, table) != 0){
+			// key at index -2 and value at index -1
+			if(lua_isstring(L, -1))
+				prop->colors.push_back(readARGB8(L, -1));
+			else
+				prop->colors.push_back(video::SColor(255, 255, 255, 255));
+			// removes value, keeps key for next iteration
+			lua_pop(L, 1);
+		}
+	}
+	lua_pop(L, 1);
 	
 	lua_getfield(L, -1, "spritediv");
 	if(lua_istable(L, -1))
