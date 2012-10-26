@@ -152,6 +152,8 @@ public:
 
 	virtual void setArmorGroups(const ItemGroupList &armor_groups)
 	{}
+	virtual void setAnimations(int frame_start, int frame_end, float frame_speed, float frame_blend)
+	{}
 	virtual ObjectProperties* accessObjectProperties()
 	{ return NULL; }
 	virtual void notifyObjectPropertiesModified()

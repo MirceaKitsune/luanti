@@ -2722,6 +2722,30 @@ private:
 		return 0;
 	}
 
+	// setanimations(self, mod)
+	static int l_setanimations(lua_State *L)
+	{
+		ObjectRef *ref = checkobject(L, 1);
+		ServerActiveObject *co = getobject(ref);
+		if(co == NULL) return 0;
+		// Do it
+		v2s16 p(0,0);
+		int frame_start = 0;
+		if(!lua_isnil(L, 2))
+			frame_start = lua_tonumber(L, 2);
+		int frame_end = 0;
+		if(!lua_isnil(L, 3))
+			frame_end = lua_tonumber(L, 3);
+		float frame_speed = 15;
+		if(!lua_isnil(L, 4))
+			frame_speed = lua_tonumber(L, 4);
+		float frame_blend = 0;
+		if(!lua_isnil(L, 5))
+			frame_blend = lua_tonumber(L, 5);
+		co->setAnimations(frame_start, frame_end, frame_speed, frame_blend);
+		return 0;
+	}
+
 	// set_properties(self, properties)
 	static int l_set_properties(lua_State *L)
 	{
@@ -2844,30 +2868,6 @@ private:
 		if(!lua_isnil(L, 5))
 			select_horiz_by_yawpitch = lua_toboolean(L, 5);
 		co->setSprite(p, num_frames, framelength, select_horiz_by_yawpitch);
-		return 0;
-	}
-
-	// setanimations(self, mod)
-	static int l_setanimations(lua_State *L)
-	{
-		ObjectRef *ref = checkobject(L, 1);
-		LuaEntitySAO *co = getluaobject(ref);
-		if(co == NULL) return 0;
-		// Do it
-		v2s16 p(0,0);
-		int frame_start = 0;
-		if(!lua_isnil(L, 2))
-			frame_start = lua_tonumber(L, 2);
-		int frame_end = 0;
-		if(!lua_isnil(L, 3))
-			frame_end = lua_tonumber(L, 3);
-		float frame_speed = 15;
-		if(!lua_isnil(L, 4))
-			frame_speed = lua_tonumber(L, 4);
-		float frame_blend = 0;
-		if(!lua_isnil(L, 5))
-			frame_blend = lua_tonumber(L, 5);
-		co->setAnimations(frame_start, frame_end, frame_speed, frame_blend);
 		return 0;
 	}
 

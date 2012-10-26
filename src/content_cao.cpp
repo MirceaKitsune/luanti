@@ -576,6 +576,10 @@ private:
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set;
 	bool m_tx_select_horiz_by_yawpitch;
+	int m_frame_start;
+	int m_frame_end;
+	int m_frame_speed;
+	int m_frame_blend;
 	int m_anim_frame;
 	int m_anim_num_frames;
 	float m_anim_framelength;
@@ -924,6 +928,7 @@ public:
 			m_visuals_expired = false;
 			removeFromScene();
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
+			updateAnimations();
 		}
 
 		if(m_prop.physical){
@@ -1136,14 +1141,14 @@ public:
 		}
 	}
 
-	void updateAnimations(int frame_start, int frame_end, float frame_speed, float frame_blend)
+	void updateAnimations()
 	{
 		if(!m_animated_meshnode)
 			return;
 
-		m_animated_meshnode->setFrameLoop(frame_start, frame_end);
-		m_animated_meshnode->setAnimationSpeed(frame_speed);
-		m_animated_meshnode->setTransitionTime(frame_blend);
+		m_animated_meshnode->setFrameLoop(m_frame_start, m_frame_end);
+		m_animated_meshnode->setAnimationSpeed(m_frame_speed);
+		m_animated_meshnode->setTransitionTime(m_frame_blend);
 
 		if(m_prop.animation_bone_position.size() > 0)
 		{
@@ -1236,12 +1241,13 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ANIMATIONS)
 		{
-			int frame_start = readU16(is);
-			int frame_end = readU16(is);
-			float frame_speed = readF1000(is);
-			float frame_blend = readF1000(is);
+			m_frame_start = readU16(is);
+			m_frame_end = readU16(is);
+			m_frame_speed = readF1000(is);
+			m_frame_blend = readF1000(is);
 
-			updateAnimations(frame_start, frame_end, frame_speed, frame_blend);
+			updateAnimations();
+			expireVisuals();
 		}
 		else if(cmd == GENERIC_CMD_PUNCHED)
 		{

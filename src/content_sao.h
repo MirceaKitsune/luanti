@@ -61,6 +61,7 @@ public:
 	void setHP(s16 hp);
 	s16 getHP() const;
 	void setArmorGroups(const ItemGroupList &armor_groups);
+	void setAnimations(int frame_start, int frame_end, float frame_speed, float frame_blend);
 	ObjectProperties* accessObjectProperties();
 	void notifyObjectPropertiesModified();
 	/* LuaEntitySAO-specific */
@@ -73,7 +74,6 @@ public:
 	void setTextureMod(const std::string &mod);
 	void setSprite(v2s16 p, int num_frames, float framelength,
 			bool select_horiz_by_yawpitch);
-	void setAnimations(int frame_start, int frame_end, float frame_speed, float frame_blend);
 	std::string getName();
 private:
 	std::string getPropertyPacket();
@@ -143,6 +143,7 @@ public:
 	void setHP(s16 hp);
 	
 	void setArmorGroups(const ItemGroupList &armor_groups);
+	void setAnimations(int frame_start, int frame_end, float frame_speed, float frame_blend);
 	ObjectProperties* accessObjectProperties();
 	void notifyObjectPropertiesModified();
 
