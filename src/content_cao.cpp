@@ -581,8 +581,7 @@ private:
 	int m_frame_speed;
 	int m_frame_blend;
 	std::map<std::string, core::vector2d<v3f> > m_bone_posrot;
-	ClientActiveObject* m_parent;
-	int m_parent_id;
+	ClientActiveObject* m_attachment_parent;
 	std::string m_attachment_bone;
 	v3f m_attacmhent_position;
 	v3f m_attachment_rotation;
@@ -911,10 +910,9 @@ public:
 
 	void updateNodePos()
 	{
-		if(m_parent != NULL)
+		if(m_attachment_parent != NULL)
 		{
 			// Modify position for attached objects
-			m_position = m_parent->m_meshnode->getPosition();
 		}
 
 		if(m_meshnode){
@@ -944,7 +942,6 @@ public:
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
 			updateAnimations();
 			updateBonePosRot();
-			updateAttachment();
 		}
 
 		if(m_prop.physical){
@@ -1205,14 +1202,6 @@ public:
 		}
 	}
 
-	void updateAttachment()
-	{
-		ClientActiveObject *obj = m_env->getActiveObject(m_parent_id);
-		if(obj != NULL)
-			m_parent = obj;
-		errorstream<<m_parent->getId()<<"####"<<std::endl;
-	}
-
 	void processMessage(const std::string &data)
 	{
 		//infostream<<"GenericCAO: Got message"<<std::endl;
@@ -1301,12 +1290,12 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
-			m_parent_id = readS16(is);
+			ClientActiveObject *obj = m_env->getActiveObject(readS16(is));
+			if(obj != NULL)
+				m_attachment_parent = obj;
 			m_attachment_bone = deSerializeString(is);
 			m_attacmhent_position = readV3F1000(is);
 			m_attachment_rotation = readV3F1000(is);
-
-			updateAttachment();
 		}
 		else if(cmd == GENERIC_CMD_PUNCHED)
 		{

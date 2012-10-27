@@ -661,13 +661,27 @@ void LuaEntitySAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 	m_messages_out.push_back(aom);
 }
 
-void LuaEntitySAO::setAttachment(int parent_id, std::string bone, v3f position, v3f rotation)
+void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
 {
+	// Attachments need to be handled on both the server and client.
+	// If we attach only on the server, models (which are client-side)
+	// can't be read so we don't know the origin and orientation of bones.
+	// If we attach only on the client, the real position of attachments is
+	// not updated and you can't click them for example.
 
-	std::string str = gob_cmd_set_attachment(parent_id, bone, position, rotation);
-	// create message and add to list
-	ActiveObjectMessage aom(getId(), true, str);
-	m_messages_out.push_back(aom);
+	// Server attachments:
+	// Sets the position and orientation of our attachment to copy that of our parent
+	// ---- Code goes here ----
+
+	// Client attachments:
+	// Only if we attach to a skeletal bone, object positon and origin is automatically sent to clients
+	if(bone != "")
+	{
+		std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
+		// create message and add to list
+		ActiveObjectMessage aom(getId(), true, str);
+		m_messages_out.push_back(aom);
+	}
 }
 
 ObjectProperties* LuaEntitySAO::accessObjectProperties()
@@ -1122,12 +1136,27 @@ void PlayerSAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 	m_messages_out.push_back(aom);
 }
 
-void PlayerSAO::setAttachment(int parent_id, std::string bone, v3f position, v3f rotation)
-{	
-	std::string str = gob_cmd_set_attachment(parent_id, bone, position, rotation);
-	// create message and add to list
-	ActiveObjectMessage aom(getId(), true, str);
-	m_messages_out.push_back(aom);
+void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
+{
+	// Attachments need to be handled on both the server and client.
+	// If we attach only on the server, models (which are client-side)
+	// can't be read so we don't know the origin and orientation of bones.
+	// If we attach only on the client, the real position of attachments is
+	// not updated and you can't click them for example.
+
+	// Server attachments:
+	// Sets the position and orientation of our attachment to copy that of our parent
+	// ---- Code goes here ----
+
+	// Client attachments:
+	// Only if we attach to a skeletal bone, object positon and origin is automatically sent to clients
+	if(bone != "")
+	{
+		std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
+		// create message and add to list
+		ActiveObjectMessage aom(getId(), true, str);
+		m_messages_out.push_back(aom);
+	}
 }
 
 ObjectProperties* PlayerSAO::accessObjectProperties()

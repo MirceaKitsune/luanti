@@ -2777,7 +2777,7 @@ private:
 			rotation = read_v3f(L, 5);
 		// Do it
 
-		co->setAttachment(parent->getId(), bone, position, rotation);
+		co->setAttachment(parent, bone, position, rotation);
 		return 0;
 	}
 
