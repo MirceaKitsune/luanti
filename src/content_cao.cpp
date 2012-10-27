@@ -581,6 +581,7 @@ private:
 	int m_frame_speed;
 	int m_frame_blend;
 	std::map<std::string, core::vector2d<v3f> > m_bone_posrot;
+	ClientActiveObject* m_parent;
 	int m_parent_id;
 	std::string m_attachment_bone;
 	v3f m_attacmhent_position;
@@ -910,6 +911,12 @@ public:
 
 	void updateNodePos()
 	{
+		if(m_parent != NULL)
+		{
+			// Modify position for attached objects
+			m_position = m_parent->m_meshnode->getPosition();
+		}
+
 		if(m_meshnode){
 			m_meshnode->setPosition(pos_translator.vect_show);
 			v3f rot = m_meshnode->getRotation();
@@ -1200,7 +1207,10 @@ public:
 
 	void updateAttachment()
 	{
-		// Code for attachments goes here
+		ClientActiveObject *obj = m_env->getActiveObject(m_parent_id);
+		if(obj != NULL)
+			m_parent = obj;
+		errorstream<<m_parent->getId()<<"####"<<std::endl;
 	}
 
 	void processMessage(const std::string &data)
