@@ -661,14 +661,10 @@ void LuaEntitySAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 	m_messages_out.push_back(aom);
 }
 
-// Part of the attachment structure, not used yet!
-void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
+void LuaEntitySAO::setAttachment(int parent_id, std::string bone, v3f position, v3f rotation)
 {
-	// Parent should be translated from a ServerActiveObject into something
-	// the client will recognize (as a ClientActiveObject) then sent in
-	// gob_cmd_set_attachment that way.
 
-	std::string str = gob_cmd_set_attachment(); // <- parameters here
+	std::string str = gob_cmd_set_attachment(parent_id, bone, position, rotation);
 	// create message and add to list
 	ActiveObjectMessage aom(getId(), true, str);
 	m_messages_out.push_back(aom);
@@ -1126,10 +1122,9 @@ void PlayerSAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 	m_messages_out.push_back(aom);
 }
 
-// Part of the attachment structure, not used yet!
-void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
+void PlayerSAO::setAttachment(int parent_id, std::string bone, v3f position, v3f rotation)
 {	
-	std::string str = gob_cmd_set_attachment(); // <- parameters here
+	std::string str = gob_cmd_set_attachment(parent_id, bone, position, rotation);
 	// create message and add to list
 	ActiveObjectMessage aom(getId(), true, str);
 	m_messages_out.push_back(aom);

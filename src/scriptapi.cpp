@@ -2736,7 +2736,7 @@ private:
 		return 0;
 	}
 
-	// setboneposrot(std::string bone, v3f position, v3f rotation)
+	// setboneposrot(self, std::string bone, v3f position, v3f rotation)
 	static int l_set_bone_posrot(lua_State *L)
 	{
 		ObjectRef *ref = checkobject(L, 1);
@@ -2757,8 +2757,7 @@ private:
 		return 0;
 	}
 
-// Part of the attachment structure, not used yet!
-	// set_attachment() // <- parameters here
+	// set_attachment(self, parent, bone, position, rotation)
 	static int l_set_attachment(lua_State *L)
 	{
 		ObjectRef *ref = checkobject(L, 1);
@@ -2777,10 +2776,8 @@ private:
 		if(!lua_isnil(L, 5))
 			rotation = read_v3f(L, 5);
 		// Do it
-	
-//lua_pushnumber(L, cobj->getId()); // Push id
 
-		co->setAttachment(parent, bone, position, rotation);
+		co->setAttachment(parent->getId(), bone, position, rotation);
 		return 0;
 	}
 

@@ -581,6 +581,10 @@ private:
 	int m_frame_speed;
 	int m_frame_blend;
 	std::map<std::string, core::vector2d<v3f> > m_bone_posrot;
+	int m_parent_id;
+	std::string m_attachment_bone;
+	v3f m_attacmhent_position;
+	v3f m_attachment_rotation;
 	int m_anim_frame;
 	int m_anim_num_frames;
 	float m_anim_framelength;
@@ -1287,12 +1291,12 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
-			// Part of the attachment structure, not used yet!
-
-			// Get properties here.
+			m_parent_id = readS16(is);
+			m_attachment_bone = deSerializeString(is);
+			m_attacmhent_position = readV3F1000(is);
+			m_attachment_rotation = readV3F1000(is);
 
 			updateAttachment();
-			expireVisuals();
 		}
 		else if(cmd == GENERIC_CMD_PUNCHED)
 		{
