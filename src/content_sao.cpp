@@ -444,6 +444,8 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	
 	if(m_parent != NULL)
 	{
+		// REMAINING ATTACHMENT ISSUES:
+		// is the code below the best way to handle server-side attachments by copying the origin of the parent?
 		m_base_position = m_parent->getBasePosition();
 		m_velocity = v3f(0,0,0);
 		m_acceleration = v3f(0,0,0);
@@ -610,6 +612,8 @@ void LuaEntitySAO::rightClick(ServerActiveObject *clicker)
 
 void LuaEntitySAO::setPos(v3f pos)
 {
+	// REMAINING ATTACHMENT ISSUES:
+	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	m_base_position = pos;
@@ -618,6 +622,8 @@ void LuaEntitySAO::setPos(v3f pos)
 
 void LuaEntitySAO::moveTo(v3f pos, bool continuous)
 {
+	// REMAINING ATTACHMENT ISSUES:
+	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	m_base_position = pos;
@@ -678,24 +684,20 @@ void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v
 {
 	// Attachments need to be handled on both the server and client.
 	// If we attach only on the server, models (which are client-side)
-	// can't be read so we don't know the origin and orientation of bones.
+	// can't be read so we don't know the origin and orientation of bones
+	// (plus that it's laggy as the attachment is sent separately to clients).
 	// If we attach only on the client, the real position of attachments is
-	// not updated and you can't punch them for example.
+	// not known to the server which can break some functionality.
 
-	// Server attachments:
-	// Sets the position and orientation of our attachment to copy that of our parent
+	// Server attachment:
 	if(parent != NULL)
 		m_parent = parent;
 
-	// Client attachments:
-	// Only if we attach to a skeletal bone, object positon and origin is automatically sent to clients
-	if(bone != "")
-	{
-		std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
-		// create message and add to list
-		ActiveObjectMessage aom(getId(), true, str);
-		m_messages_out.push_back(aom);
-	}
+	// Client attachment:
+	std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
+	// create message and add to list
+	ActiveObjectMessage aom(getId(), true, str);
+	m_messages_out.push_back(aom);
 }
 
 ObjectProperties* LuaEntitySAO::accessObjectProperties()
@@ -929,7 +931,9 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 	m_time_from_last_punch += dtime;
 	m_nocheat_dig_time += dtime;
-	
+
+	// REMAINING ATTACHMENT ISSUES:
+	// the check below is meant to cancel setting origin, velocity, etc. by other factors for attachments. Is this best?
 	if(m_parent == NULL)
 	{
 		if(m_is_singleplayer || g_settings->getBool("disable_anticheat"))
@@ -996,6 +1000,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 		m_position_not_sent = false;
 		float update_interval = m_env->getSendRecommendedInterval();
 		v3f pos;
+		// REMAINING ATTACHMENT ISSUES:
+		// is the code below the best way to handle server-side attachments by copying the origin of the parent?
 		if(m_parent != NULL)
 			pos = m_parent->getBasePosition();
 		else
@@ -1032,6 +1038,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 void PlayerSAO::setBasePosition(const v3f &position)
 {
+	// REMAINING ATTACHMENT ISSUES:
+	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	ServerActiveObject::setBasePosition(position);
@@ -1040,6 +1048,8 @@ void PlayerSAO::setBasePosition(const v3f &position)
 
 void PlayerSAO::setPos(v3f pos)
 {
+	// REMAINING ATTACHMENT ISSUES:
+	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	m_player->setPosition(pos);
@@ -1052,6 +1062,8 @@ void PlayerSAO::setPos(v3f pos)
 
 void PlayerSAO::moveTo(v3f pos, bool continuous)
 {
+	// REMAINING ATTACHMENT ISSUES:
+	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	m_player->setPosition(pos);
@@ -1168,24 +1180,20 @@ void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f 
 {
 	// Attachments need to be handled on both the server and client.
 	// If we attach only on the server, models (which are client-side)
-	// can't be read so we don't know the origin and orientation of bones.
+	// can't be read so we don't know the origin and orientation of bones
+	// (plus that it's laggy as the attachment is sent separately to clients).
 	// If we attach only on the client, the real position of attachments is
-	// not updated and you can't punch them for example.
+	// not known to the server which can break some functionality.
 
-	// Server attachments:
-	// Sets the position and orientation of our attachment to copy that of our parent
+	// Server attachment:
 	if(parent != NULL)
 		m_parent = parent;
 
-	// Client attachments:
-	// Only if we attach to a skeletal bone, object positon and origin is automatically sent to clients
-	if(bone != "")
-	{
-		std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
-		// create message and add to list
-		ActiveObjectMessage aom(getId(), true, str);
-		m_messages_out.push_back(aom);
-	}
+	// Client attachment:
+	std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
+	// create message and add to list
+	ActiveObjectMessage aom(getId(), true, str);
+	m_messages_out.push_back(aom);
 }
 
 ObjectProperties* PlayerSAO::accessObjectProperties()

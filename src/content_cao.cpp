@@ -912,7 +912,24 @@ public:
 	{
 		if(m_attachment_parent != NULL)
 		{
-			// Modify position for attached objects
+			// REMAINING ATTACHMENT ISSUES:
+			// We get to this function when this object is an attachment,
+			// that needs to be attached to the parent. If a bone is set,
+			// we must use the proper Irrlicht function to attach it to
+			// that bone. If one isn't set, simply attach it to the object's
+			// origin.
+		
+			// We already attach our entity on the server. Reason to attach
+			// to the client too is first of all lag (the server sends the position
+			// of the child separately than that of the parent so even locally
+			// you'd see the child following), and to allow skeletal attachment.
+			// Here in the client the attachment must be done with an Irrlicht
+			// function, not just copying origins.
+		
+			// m_attachment_bone is the name of the skeletal bone to attach to
+			// (if it's empty attach to the object, not a bone on its mesh).
+			// m_attachment_parent is the client object of the other entity we are
+			// attaching to. Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
 		}
 
 		if(m_meshnode){
