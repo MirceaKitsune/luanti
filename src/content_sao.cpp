@@ -930,11 +930,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	m_time_from_last_punch += dtime;
 	m_nocheat_dig_time += dtime;
 	
-	if(m_parent != NULL)
-	{
-		m_player->setPosition(m_parent->getBasePosition());
-	}
-	else
+	if(m_parent == NULL)
 	{
 		if(m_is_singleplayer || g_settings->getBool("disable_anticheat"))
 		{
@@ -999,8 +995,13 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	{
 		m_position_not_sent = false;
 		float update_interval = m_env->getSendRecommendedInterval();
+		v3f pos;
+		if(m_parent != NULL)
+			pos = m_parent->getBasePosition();
+		else
+			pos = m_player->getPosition() + v3f(0,BS*1,0);
 		std::string str = gob_cmd_update_position(
-			m_player->getPosition() + v3f(0,BS*1,0),
+			pos,
 			v3f(0,0,0),
 			v3f(0,0,0),
 			m_player->getYaw(),
