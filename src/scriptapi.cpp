@@ -2762,12 +2762,17 @@ private:
 	static int l_set_attachment(lua_State *L)
 	{
 		ObjectRef *ref = checkobject(L, 1);
+		ObjectRef *parent_ref = checkobject(L, 2);
 		ServerActiveObject *co = getobject(ref);
+		ServerActiveObject *parent = getobject(parent_ref);
 		if(co == NULL) return 0;
+		if(parent == NULL) return 0;
+		std::string bone = "";
+		if(!lua_isnil(L, 3))
+			bone = lua_tostring(L, 3);
 		// Do it
 
-		// Get properties here.
-		co->setAttachment(); // <- parameters here
+		co->setAttachment(parent, bone);
 		return 0;
 	}
 
