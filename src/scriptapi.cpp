@@ -2770,9 +2770,15 @@ private:
 		std::string bone = "";
 		if(!lua_isnil(L, 3))
 			bone = lua_tostring(L, 3);
+		v3f position = v3f(0, 0, 0);
+		if(!lua_isnil(L, 4))
+			position = read_v3f(L, 4);
+		v3f rotation = v3f(0, 0, 0);
+		if(!lua_isnil(L, 5))
+			rotation = read_v3f(L, 5);
 		// Do it
 
-		co->setAttachment(parent, bone);
+		co->setAttachment(parent, bone, position, rotation);
 		return 0;
 	}
 

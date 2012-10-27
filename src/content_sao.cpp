@@ -661,7 +661,7 @@ void LuaEntitySAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 }
 
 // Part of the attachment structure, not used yet!
-void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone)
+void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
 {
 	// Parent should be translated from a ServerActiveObject into something
 	// the client will recognize (as a ClientActiveObject) then sent in
@@ -1125,7 +1125,7 @@ void PlayerSAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 }
 
 // Part of the attachment structure, not used yet!
-void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone)
+void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
 {
 	std::string str = gob_cmd_set_attachment(); // <- parameters here
 	// create message and add to list
