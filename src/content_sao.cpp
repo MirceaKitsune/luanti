@@ -442,28 +442,37 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 
 	m_last_sent_position_timer += dtime;
 	
-	if(m_prop.physical){
-		core::aabbox3d<f32> box = m_prop.collisionbox;
-		box.MinEdge *= BS;
-		box.MaxEdge *= BS;
-		collisionMoveResult moveresult;
-		f32 pos_max_d = BS*0.25; // Distance per iteration
-		f32 stepheight = 0; // Maximum climbable step height
-		v3f p_pos = m_base_position;
-		v3f p_velocity = m_velocity;
-		v3f p_acceleration = m_acceleration;
-		IGameDef *gamedef = m_env->getGameDef();
-		moveresult = collisionMoveSimple(&m_env->getMap(), gamedef,
-				pos_max_d, box, stepheight, dtime,
-				p_pos, p_velocity, p_acceleration);
-		// Apply results
-		m_base_position = p_pos;
-		m_velocity = p_velocity;
-		m_acceleration = p_acceleration;
-	} else {
-		m_base_position += dtime * m_velocity + 0.5 * dtime
-				* dtime * m_acceleration;
-		m_velocity += dtime * m_acceleration;
+	if(m_parent != NULL)
+	{
+		m_base_position = m_parent->getBasePosition();
+		m_velocity = v3f(0,0,0);
+		m_acceleration = v3f(0,0,0);
+	}
+	else
+	{
+		if(m_prop.physical){
+			core::aabbox3d<f32> box = m_prop.collisionbox;
+			box.MinEdge *= BS;
+			box.MaxEdge *= BS;
+			collisionMoveResult moveresult;
+			f32 pos_max_d = BS*0.25; // Distance per iteration
+			f32 stepheight = 0; // Maximum climbable step height
+			v3f p_pos = m_base_position;
+			v3f p_velocity = m_velocity;
+			v3f p_acceleration = m_acceleration;
+			IGameDef *gamedef = m_env->getGameDef();
+			moveresult = collisionMoveSimple(&m_env->getMap(), gamedef,
+					pos_max_d, box, stepheight, dtime,
+					p_pos, p_velocity, p_acceleration);
+			// Apply results
+			m_base_position = p_pos;
+			m_velocity = p_velocity;
+			m_acceleration = p_acceleration;
+		} else {
+			m_base_position += dtime * m_velocity + 0.5 * dtime
+					* dtime * m_acceleration;
+			m_velocity += dtime * m_acceleration;
+		}
 	}
 
 	if(m_registered){
@@ -601,12 +610,16 @@ void LuaEntitySAO::rightClick(ServerActiveObject *clicker)
 
 void LuaEntitySAO::setPos(v3f pos)
 {
+	if(m_parent != NULL)
+		return;
 	m_base_position = pos;
 	sendPosition(false, true);
 }
 
 void LuaEntitySAO::moveTo(v3f pos, bool continuous)
 {
+	if(m_parent != NULL)
+		return;
 	m_base_position = pos;
 	if(!continuous)
 		sendPosition(true, true);
@@ -667,11 +680,12 @@ void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v
 	// If we attach only on the server, models (which are client-side)
 	// can't be read so we don't know the origin and orientation of bones.
 	// If we attach only on the client, the real position of attachments is
-	// not updated and you can't click them for example.
+	// not updated and you can't punch them for example.
 
 	// Server attachments:
 	// Sets the position and orientation of our attachment to copy that of our parent
-	// ---- Code goes here ----
+	if(parent != NULL)
+		m_parent = parent;
 
 	// Client attachments:
 	// Only if we attach to a skeletal bone, object positon and origin is automatically sent to clients
@@ -916,58 +930,65 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	m_time_from_last_punch += dtime;
 	m_nocheat_dig_time += dtime;
 	
-	if(m_is_singleplayer || g_settings->getBool("disable_anticheat"))
+	if(m_parent != NULL)
 	{
-		m_last_good_position = m_player->getPosition();
-		m_last_good_position_age = 0;
+		m_player->setPosition(m_parent->getBasePosition());
 	}
 	else
 	{
-		/*
-			Check player movements
-
-			NOTE: Actually the server should handle player physics like the
-			client does and compare player's position to what is calculated
-			on our side. This is required when eg. players fly due to an
-			explosion. Altough a node-based alternative might be possible
-			too, and much more lightweight.
-		*/
-
-		float player_max_speed = 0;
-		float player_max_speed_up = 0;
-		if(m_privs.count("fast") != 0){
-			// Fast speed
-			player_max_speed = BS * 20;
-			player_max_speed_up = BS * 20;
-		} else {
-			// Normal speed
-			player_max_speed = BS * 4.0;
-			player_max_speed_up = BS * 4.0;
-		}
-		// Tolerance
-		player_max_speed *= 2.5;
-		player_max_speed_up *= 2.5;
-
-		m_last_good_position_age += dtime;
-		if(m_last_good_position_age >= 1.0){
-			float age = m_last_good_position_age;
-			v3f diff = (m_player->getPosition() - m_last_good_position);
-			float d_vert = diff.Y;
-			diff.Y = 0;
-			float d_horiz = diff.getLength();
-			/*infostream<<m_player->getName()<<"'s horizontal speed is "
-					<<(d_horiz/age)<<std::endl;*/
-			if(d_horiz <= age * player_max_speed &&
-					(d_vert < 0 || d_vert < age * player_max_speed_up)){
-				m_last_good_position = m_player->getPosition();
-			} else {
-				actionstream<<"Player "<<m_player->getName()
-						<<" moved too fast; resetting position"
-						<<std::endl;
-				m_player->setPosition(m_last_good_position);
-				m_teleported = true;
-			}
+		if(m_is_singleplayer || g_settings->getBool("disable_anticheat"))
+		{
+			m_last_good_position = m_player->getPosition();
 			m_last_good_position_age = 0;
+		}
+		else
+		{
+			/*
+				Check player movements
+
+				NOTE: Actually the server should handle player physics like the
+				client does and compare player's position to what is calculated
+				on our side. This is required when eg. players fly due to an
+				explosion. Altough a node-based alternative might be possible
+				too, and much more lightweight.
+			*/
+
+			float player_max_speed = 0;
+			float player_max_speed_up = 0;
+			if(m_privs.count("fast") != 0){
+				// Fast speed
+				player_max_speed = BS * 20;
+				player_max_speed_up = BS * 20;
+			} else {
+				// Normal speed
+				player_max_speed = BS * 4.0;
+				player_max_speed_up = BS * 4.0;
+			}
+			// Tolerance
+			player_max_speed *= 2.5;
+			player_max_speed_up *= 2.5;
+
+			m_last_good_position_age += dtime;
+			if(m_last_good_position_age >= 1.0){
+				float age = m_last_good_position_age;
+				v3f diff = (m_player->getPosition() - m_last_good_position);
+				float d_vert = diff.Y;
+				diff.Y = 0;
+				float d_horiz = diff.getLength();
+				/*infostream<<m_player->getName()<<"'s horizontal speed is "
+						<<(d_horiz/age)<<std::endl;*/
+				if(d_horiz <= age * player_max_speed &&
+						(d_vert < 0 || d_vert < age * player_max_speed_up)){
+					m_last_good_position = m_player->getPosition();
+				} else {
+					actionstream<<"Player "<<m_player->getName()
+							<<" moved too fast; resetting position"
+							<<std::endl;
+					m_player->setPosition(m_last_good_position);
+					m_teleported = true;
+				}
+				m_last_good_position_age = 0;
+			}
 		}
 	}
 
@@ -1010,12 +1031,16 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 void PlayerSAO::setBasePosition(const v3f &position)
 {
+	if(m_parent != NULL)
+		return;
 	ServerActiveObject::setBasePosition(position);
 	m_position_not_sent = true;
 }
 
 void PlayerSAO::setPos(v3f pos)
 {
+	if(m_parent != NULL)
+		return;
 	m_player->setPosition(pos);
 	// Movement caused by this command is always valid
 	m_last_good_position = pos;
@@ -1026,6 +1051,8 @@ void PlayerSAO::setPos(v3f pos)
 
 void PlayerSAO::moveTo(v3f pos, bool continuous)
 {
+	if(m_parent != NULL)
+		return;
 	m_player->setPosition(pos);
 	// Movement caused by this command is always valid
 	m_last_good_position = pos;
@@ -1142,11 +1169,12 @@ void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f 
 	// If we attach only on the server, models (which are client-side)
 	// can't be read so we don't know the origin and orientation of bones.
 	// If we attach only on the client, the real position of attachments is
-	// not updated and you can't click them for example.
+	// not updated and you can't punch them for example.
 
 	// Server attachments:
 	// Sets the position and orientation of our attachment to copy that of our parent
-	// ---- Code goes here ----
+	if(parent != NULL)
+		m_parent = parent;
 
 	// Client attachments:
 	// Only if we attach to a skeletal bone, object positon and origin is automatically sent to clients
