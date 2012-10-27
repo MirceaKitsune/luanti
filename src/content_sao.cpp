@@ -504,6 +504,7 @@ std::string LuaEntitySAO::getClientInitializationData()
 	std::ostringstream os(std::ios::binary);
 	writeU8(os, 0); // version
 	os<<serializeString(""); // name
+	writeS16(os, getId()); //id
 	writeU8(os, 0); // is_player
 	writeV3F1000(os, m_base_position);
 	writeF1000(os, m_yaw);
@@ -875,6 +876,7 @@ std::string PlayerSAO::getClientInitializationData()
 	writeU8(os, 0); // version
 	os<<serializeString(m_player->getName()); // name
 	writeU8(os, 1); // is_player
+	writeS16(os, getId()); //id
 	writeV3F1000(os, m_player->getPosition() + v3f(0,BS*1,0));
 	writeF1000(os, m_player->getYaw());
 	writeS16(os, getHP());
@@ -1126,7 +1128,7 @@ void PlayerSAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 
 // Part of the attachment structure, not used yet!
 void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
-{
+{	
 	std::string str = gob_cmd_set_attachment(); // <- parameters here
 	// create message and add to list
 	ActiveObjectMessage aom(getId(), true, str);

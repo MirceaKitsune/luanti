@@ -2758,7 +2758,7 @@ private:
 	}
 
 // Part of the attachment structure, not used yet!
-	// setattachment() // <- parameters here
+	// set_attachment() // <- parameters here
 	static int l_set_attachment(lua_State *L)
 	{
 		ObjectRef *ref = checkobject(L, 1);
@@ -2777,6 +2777,8 @@ private:
 		if(!lua_isnil(L, 5))
 			rotation = read_v3f(L, 5);
 		// Do it
+	
+//lua_pushnumber(L, cobj->getId()); // Push id
 
 		co->setAttachment(parent, bone, position, rotation);
 		return 0;
@@ -3098,6 +3100,7 @@ const luaL_reg ObjectRef::methods[] = {
 	method(ObjectRef, set_armor_groups),
 	method(ObjectRef, set_animations),
 	method(ObjectRef, set_bone_posrot),
+	method(ObjectRef, set_attachment),
 	method(ObjectRef, set_properties),
 	// LuaEntitySAO-only
 	method(ObjectRef, setvelocity),
