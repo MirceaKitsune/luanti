@@ -446,7 +446,8 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	
 	if(m_parent != NULL)
 	{
-		m_base_position = m_parent->getBasePosition();
+		v3f pos = m_parent->getBasePosition();
+		m_base_position = pos;
 		m_velocity = v3f(0,0,0);
 		m_acceleration = v3f(0,0,0);
 	}
@@ -484,20 +485,23 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 
 	if(send_recommended == false)
 		return;
-	
-	// TODO: force send when acceleration changes enough?
-	float minchange = 0.2*BS;
-	if(m_last_sent_position_timer > 1.0){
-		minchange = 0.01*BS;
-	} else if(m_last_sent_position_timer > 0.2){
-		minchange = 0.05*BS;
-	}
-	float move_d = m_base_position.getDistanceFrom(m_last_sent_position);
-	move_d += m_last_sent_move_precision;
-	float vel_d = m_velocity.getDistanceFrom(m_last_sent_velocity);
-	if(move_d > minchange || vel_d > minchange ||
-			fabs(m_yaw - m_last_sent_yaw) > 1.0){
-		sendPosition(true, false);
+
+	if(m_parent != NULL)
+	{
+		// TODO: force send when acceleration changes enough?
+		float minchange = 0.2*BS;
+		if(m_last_sent_position_timer > 1.0){
+			minchange = 0.01*BS;
+		} else if(m_last_sent_position_timer > 0.2){
+			minchange = 0.05*BS;
+		}
+		float move_d = m_base_position.getDistanceFrom(m_last_sent_position);
+		move_d += m_last_sent_move_precision;
+		float vel_d = m_velocity.getDistanceFrom(m_last_sent_velocity);
+		if(move_d > minchange || vel_d > minchange ||
+				fabs(m_yaw - m_last_sent_yaw) > 1.0){
+			sendPosition(true, false);
+		}
 	}
 
 	if(m_armor_groups_sent == false){
