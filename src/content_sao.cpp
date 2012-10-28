@@ -446,9 +446,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	
 	if(m_parent != NULL)
 	{
-		// REMAINING ATTACHMENT ISSUES:
-		// This is causing a segmentation fault, investigate why!
-		//m_base_position = m_parent->getBasePosition();
+		m_base_position = m_parent->getBasePosition();
 		m_velocity = v3f(0,0,0);
 		m_acceleration = v3f(0,0,0);
 	}
@@ -776,6 +774,7 @@ std::string LuaEntitySAO::getPropertyPacket()
 
 void LuaEntitySAO::sendPosition(bool do_interpolate, bool is_movement_end)
 {
+	// If the object is attached client-side, don't waste bandwidth sending its position to clients
 	if(m_parent != NULL)
 		return;
 	
@@ -938,12 +937,19 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	m_time_from_last_punch += dtime;
 	m_nocheat_dig_time += dtime;
 
-	if(m_parent == NULL)
+	if(m_parent != NULL)
+	{
+		v3f pos = m_parent->getBasePosition();
+		m_player->setPosition(pos);
+	}
+	else
 	{
 		if(m_is_singleplayer || g_settings->getBool("disable_anticheat"))
 		{
-			m_last_good_position = m_player->getPosition();
+			v3f pos = m_player->getPosition();
+			m_last_good_position = pos;
 			m_last_good_position_age = 0;
+			m_player->setPosition(pos);
 		}
 		else
 		{
@@ -999,15 +1005,13 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	if(send_recommended == false)
 		return;
 
-	// If the object is attached client-side, don't waste bandwidth and send its position to clients
+	// If the object is attached client-side, don't waste bandwidth sending its position to clients
 	if(m_position_not_sent && m_parent == NULL)
 	{
 		m_position_not_sent = false;
 		float update_interval = m_env->getSendRecommendedInterval();
 		v3f pos;
-		// REMAINING ATTACHMENT ISSUES:
-		// This is causing a segmentation fault, investigate why!
-		if(m_parent != NULL)
+		if(m_parent != NULL) // Just in case we ever do send attachment position too
 			pos = m_parent->getBasePosition();
 		else
 			pos = m_player->getPosition() + v3f(0,BS*1,0);
@@ -1043,8 +1047,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 void PlayerSAO::setBasePosition(const v3f &position)
 {
-	if(m_parent != NULL)
-		return;
+	// This needs to be ran for attachments too
 	ServerActiveObject::setBasePosition(position);
 	m_position_not_sent = true;
 }
