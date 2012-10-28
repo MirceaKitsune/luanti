@@ -690,8 +690,7 @@ void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v
 	// not known to the server which can break some functionality.
 
 	// Server attachment:
-	if(parent != NULL)
-		m_parent = parent;
+	m_parent = parent;
 
 	// Client attachment:
 	std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
@@ -1182,8 +1181,7 @@ void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f 
 	// not known to the server which can break some functionality.
 
 	// Server attachment:
-	if(parent != NULL)
-		m_parent = parent;
+	m_parent = parent;
 
 	// Client attachment:
 	std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);

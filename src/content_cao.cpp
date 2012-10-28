@@ -1314,8 +1314,7 @@ public:
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
 			ClientActiveObject *obj = m_env->getActiveObject(readS16(is));
-			if(obj != NULL)
-				m_attachment_parent = obj;
+			m_attachment_parent = obj;
 			m_attachment_bone = deSerializeString(is);
 			m_attacmhent_position = readV3F1000(is);
 			m_attachment_rotation = readV3F1000(is);
