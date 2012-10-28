@@ -384,6 +384,7 @@ void LuaEntitySAO::addedToEnvironment(u32 dtime_s)
 	// Create entity from name
 	lua_State *L = m_env->getLua();
 	m_registered = scriptapi_luaentity_add(L, m_id, m_init_name.c_str());
+	m_parent = NULL;
 	
 	if(m_registered){
 		// Get properties
@@ -447,7 +448,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	{
 		// REMAINING ATTACHMENT ISSUES:
 		// This is causing a segmentation fault, investigate why!
-		m_base_position = m_parent->getBasePosition();
+		//m_base_position = m_parent->getBasePosition();
 		m_velocity = v3f(0,0,0);
 		m_acceleration = v3f(0,0,0);
 	}
@@ -558,15 +559,15 @@ int LuaEntitySAO::punch(v3f dir,
 		ServerActiveObject *puncher,
 		float time_from_last_punch)
 {
-	// It's best that attachments cannot be punched 
-	if(m_parent != NULL)
-		return 0;
-	
 	if(!m_registered){
 		// Delete unknown LuaEntities when punched
 		m_removed = true;
 		return 0;
 	}
+
+	// It's best that attachments cannot be punched 
+	if(m_parent != NULL)
+		return 0;
 	
 	ItemStack *punchitem = NULL;
 	ItemStack punchitem_static;
@@ -873,6 +874,7 @@ void PlayerSAO::addedToEnvironment(u32 dtime_s)
 {
 	ServerActiveObject::addedToEnvironment(dtime_s);
 	ServerActiveObject::setBasePosition(m_player->getPosition());
+	m_parent = NULL;
 	m_player->setPlayerSAO(this);
 	m_player->peer_id = m_peer_id;
 	m_last_good_position = m_player->getPosition();
@@ -923,7 +925,7 @@ std::string PlayerSAO::getStaticData()
 }
 
 void PlayerSAO::step(float dtime, bool send_recommended)
-{
+{	
 	if(!m_properties_sent)
 	{
 		m_properties_sent = true;
@@ -999,7 +1001,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	if(send_recommended == false)
 		return;
 
-	if(m_position_not_sent && m_parent != NULL)
+	// If the object is attached client-side, don't waste bandwidth and send its position to clients
+	if(m_position_not_sent && m_parent == NULL)
 	{
 		m_position_not_sent = false;
 		float update_interval = m_env->getSendRecommendedInterval();
