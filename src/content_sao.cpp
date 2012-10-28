@@ -942,8 +942,6 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	{
 		if(m_is_singleplayer || g_settings->getBool("disable_anticheat"))
 		{
-			// REMAINING ATTACHMENT ISSUES:
-			// This might be causing a segmentation fault, investigate why!
 			m_last_good_position = m_player->getPosition();
 			m_last_good_position_age = 0;
 		}
@@ -1007,6 +1005,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 		m_position_not_sent = false;
 		float update_interval = m_env->getSendRecommendedInterval();
 		v3f pos;
+		// REMAINING ATTACHMENT ISSUES:
+		// This is causing a segmentation fault, investigate why!
 		if(m_parent != NULL)
 			pos = m_parent->getBasePosition();
 		else
