@@ -557,6 +557,10 @@ int LuaEntitySAO::punch(v3f dir,
 		ServerActiveObject *puncher,
 		float time_from_last_punch)
 {
+	// It's best that attachments cannot be punched 
+	if(m_parent != NULL)
+		return 0;
+	
 	if(!m_registered){
 		// Delete unknown LuaEntities when punched
 		m_removed = true;
@@ -1067,6 +1071,10 @@ int PlayerSAO::punch(v3f dir,
 	ServerActiveObject *puncher,
 	float time_from_last_punch)
 {
+	// It's best that attachments cannot be punched 
+	if(m_parent != NULL)
+		return 0;
+
 	if(!toolcap)
 		return 0;
 
