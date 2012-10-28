@@ -1241,6 +1241,7 @@ public:
 		//Useful links:
 		// http://irrlicht.sourceforge.net/forum/viewtopic.php?t=7514
 		// http://www.irrlicht3d.org/wiki/index.php?n=Main.HowToUseTheNewAnimationSystem
+		// http://gamedev.stackexchange.com/questions/27363/finding-the-endpoint-of-a-named-bone-in-irrlicht
 		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
 	}
 
