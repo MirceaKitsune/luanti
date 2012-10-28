@@ -445,7 +445,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	if(m_parent != NULL)
 	{
 		// REMAINING ATTACHMENT ISSUES:
-		// is the code below the best way to handle server-side attachments by copying the origin of the parent?
+		// This is causing a segmentation fault, investigate why!
 		m_base_position = m_parent->getBasePosition();
 		m_velocity = v3f(0,0,0);
 		m_acceleration = v3f(0,0,0);
@@ -612,8 +612,6 @@ void LuaEntitySAO::rightClick(ServerActiveObject *clicker)
 
 void LuaEntitySAO::setPos(v3f pos)
 {
-	// REMAINING ATTACHMENT ISSUES:
-	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	m_base_position = pos;
@@ -622,8 +620,6 @@ void LuaEntitySAO::setPos(v3f pos)
 
 void LuaEntitySAO::moveTo(v3f pos, bool continuous)
 {
-	// REMAINING ATTACHMENT ISSUES:
-	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	m_base_position = pos;
@@ -932,12 +928,12 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	m_time_from_last_punch += dtime;
 	m_nocheat_dig_time += dtime;
 
-	// REMAINING ATTACHMENT ISSUES:
-	// the check below is meant to cancel setting origin, velocity, etc. by other factors for attachments. Is this best?
 	if(m_parent == NULL)
 	{
 		if(m_is_singleplayer || g_settings->getBool("disable_anticheat"))
 		{
+			// REMAINING ATTACHMENT ISSUES:
+			// This might be causing a segmentation fault, investigate why!
 			m_last_good_position = m_player->getPosition();
 			m_last_good_position_age = 0;
 		}
@@ -1000,8 +996,6 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 		m_position_not_sent = false;
 		float update_interval = m_env->getSendRecommendedInterval();
 		v3f pos;
-		// REMAINING ATTACHMENT ISSUES:
-		// is the code below the best way to handle server-side attachments by copying the origin of the parent?
 		if(m_parent != NULL)
 			pos = m_parent->getBasePosition();
 		else
@@ -1038,8 +1032,6 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 void PlayerSAO::setBasePosition(const v3f &position)
 {
-	// REMAINING ATTACHMENT ISSUES:
-	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	ServerActiveObject::setBasePosition(position);
@@ -1048,8 +1040,6 @@ void PlayerSAO::setBasePosition(const v3f &position)
 
 void PlayerSAO::setPos(v3f pos)
 {
-	// REMAINING ATTACHMENT ISSUES:
-	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	m_player->setPosition(pos);
@@ -1062,8 +1052,6 @@ void PlayerSAO::setPos(v3f pos)
 
 void PlayerSAO::moveTo(v3f pos, bool continuous)
 {
-	// REMAINING ATTACHMENT ISSUES:
-	// is it ok to be doing this to cancel setting the origin of attachments by other factors?
 	if(m_parent != NULL)
 		return;
 	m_player->setPosition(pos);

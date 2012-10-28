@@ -961,48 +961,51 @@ public:
 			updateBonePosRot();
 		}
 
-		if(m_prop.physical){
-			core::aabbox3d<f32> box = m_prop.collisionbox;
-			box.MinEdge *= BS;
-			box.MaxEdge *= BS;
-			collisionMoveResult moveresult;
-			f32 pos_max_d = BS*0.125; // Distance per iteration
-			f32 stepheight = 0;
-			v3f p_pos = m_position;
-			v3f p_velocity = m_velocity;
-			v3f p_acceleration = m_acceleration;
-			IGameDef *gamedef = env->getGameDef();
-			moveresult = collisionMoveSimple(&env->getMap(), gamedef,
-					pos_max_d, box, stepheight, dtime,
-					p_pos, p_velocity, p_acceleration);
-			// Apply results
-			m_position = p_pos;
-			m_velocity = p_velocity;
-			m_acceleration = p_acceleration;
-			
-			bool is_end_position = moveresult.collides;
-			pos_translator.update(m_position, is_end_position, dtime);
-			pos_translator.translate(dtime);
-			updateNodePos();
-		} else {
-			m_position += dtime * m_velocity + 0.5 * dtime * dtime * m_acceleration;
-			m_velocity += dtime * m_acceleration;
-			pos_translator.update(m_position, pos_translator.aim_is_end, pos_translator.anim_time);
-			pos_translator.translate(dtime);
-			updateNodePos();
-		}
+		if(m_attachment_parent == NULL) // Attachments should be glued to their parent by Irrlicht
+		{
+			if(m_prop.physical){
+				core::aabbox3d<f32> box = m_prop.collisionbox;
+				box.MinEdge *= BS;
+				box.MaxEdge *= BS;
+				collisionMoveResult moveresult;
+				f32 pos_max_d = BS*0.125; // Distance per iteration
+				f32 stepheight = 0;
+				v3f p_pos = m_position;
+				v3f p_velocity = m_velocity;
+				v3f p_acceleration = m_acceleration;
+				IGameDef *gamedef = env->getGameDef();
+				moveresult = collisionMoveSimple(&env->getMap(), gamedef,
+						pos_max_d, box, stepheight, dtime,
+						p_pos, p_velocity, p_acceleration);
+				// Apply results
+				m_position = p_pos;
+				m_velocity = p_velocity;
+				m_acceleration = p_acceleration;
+				
+				bool is_end_position = moveresult.collides;
+				pos_translator.update(m_position, is_end_position, dtime);
+				pos_translator.translate(dtime);
+				updateNodePos();
+			} else {
+				m_position += dtime * m_velocity + 0.5 * dtime * dtime * m_acceleration;
+				m_velocity += dtime * m_acceleration;
+				pos_translator.update(m_position, pos_translator.aim_is_end, pos_translator.anim_time);
+				pos_translator.translate(dtime);
+				updateNodePos();
+			}
 
-		float moved = lastpos.getDistanceFrom(pos_translator.vect_show);
-		m_step_distance_counter += moved;
-		if(m_step_distance_counter > 1.5*BS){
-			m_step_distance_counter = 0;
-			if(!m_is_local_player && m_prop.makes_footstep_sound){
-				INodeDefManager *ndef = m_gamedef->ndef();
-				v3s16 p = floatToInt(getPosition() + v3f(0,
-						(m_prop.collisionbox.MinEdge.Y-0.5)*BS, 0), BS);
-				MapNode n = m_env->getMap().getNodeNoEx(p);
-				SimpleSoundSpec spec = ndef->get(n).sound_footstep;
-				m_gamedef->sound()->playSoundAt(spec, false, getPosition());
+			float moved = lastpos.getDistanceFrom(pos_translator.vect_show);
+			m_step_distance_counter += moved;
+			if(m_step_distance_counter > 1.5*BS){
+				m_step_distance_counter = 0;
+				if(!m_is_local_player && m_prop.makes_footstep_sound){
+					INodeDefManager *ndef = m_gamedef->ndef();
+					v3s16 p = floatToInt(getPosition() + v3f(0,
+							(m_prop.collisionbox.MinEdge.Y-0.5)*BS, 0), BS);
+					MapNode n = m_env->getMap().getNodeNoEx(p);
+					SimpleSoundSpec spec = ndef->get(n).sound_footstep;
+					m_gamedef->sound()->playSoundAt(spec, false, getPosition());
+				}
 			}
 		}
 
@@ -1254,18 +1257,21 @@ public:
 			bool is_end_position = readU8(is);
 			float update_interval = readF1000(is);
 
-			// Place us a bit higher if we're physical, to not sink into
-			// the ground due to sucky collision detection...
-			if(m_prop.physical)
-				m_position += v3f(0,0.002,0);
-			
-			if(do_interpolate){
-				if(!m_prop.physical)
-					pos_translator.update(m_position, is_end_position, update_interval);
-			} else {
-				pos_translator.init(m_position);
+			if(m_attachment_parent == NULL)
+			{
+				// Place us a bit higher if we're physical, to not sink into
+				// the ground due to sucky collision detection...
+				if(m_prop.physical)
+					m_position += v3f(0,0.002,0);
+				
+				if(do_interpolate){
+					if(!m_prop.physical)
+						pos_translator.update(m_position, is_end_position, update_interval);
+				} else {
+					pos_translator.init(m_position);
+				}
+				updateNodePos();
 			}
-			updateNodePos();
 		}
 		else if(cmd == GENERIC_CMD_SET_TEXTURE_MOD)
 		{
