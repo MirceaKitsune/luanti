@@ -684,11 +684,11 @@ void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v
 {
 	// Attachments need to be handled on both the server and client.
 	// If we just attach on the server, we can only copy the position of the parent. Attachments
-	// are still sent to clients at an interval so players would see them following the parent
-	// instead of sticking to it, plus we can't read and attach to skeletal bones.
+	// are still sent to clients at an interval so players might see them lagging, plus we can't
+	// read and attach to skeletal bones.
 	// If we just attach on the client, the server still sees the child at its original location.
-	// This can break some things, so we also give the server the most accurate representation
-	// even if players will only see the client changes since they override server-sent position.
+	// This breaks some things so we also give the server the most accurate representation
+	// even if players only see the client changes.
 
 	// Server attachment:
 	m_parent = parent;
@@ -940,16 +940,16 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	if(m_parent != NULL)
 	{
 		v3f pos = m_parent->getBasePosition();
+		m_last_good_position = pos;
+		m_last_good_position_age = 0;
 		m_player->setPosition(pos);
 	}
 	else
 	{
 		if(m_is_singleplayer || g_settings->getBool("disable_anticheat"))
 		{
-			v3f pos = m_player->getPosition();
-			m_last_good_position = pos;
+			m_last_good_position = m_player->getPosition();
 			m_last_good_position_age = 0;
-			m_player->setPosition(pos);
 		}
 		else
 		{
@@ -1186,11 +1186,11 @@ void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f 
 {
 	// Attachments need to be handled on both the server and client.
 	// If we just attach on the server, we can only copy the position of the parent. Attachments
-	// are still sent to clients at an interval so players would see them following the parent
-	// instead of sticking to it, plus we can't read and attach to skeletal bones.
+	// are still sent to clients at an interval so players might see them lagging, plus we can't
+	// read and attach to skeletal bones.
 	// If we just attach on the client, the server still sees the child at its original location.
-	// This can break some things, so we also give the server the most accurate representation
-	// even if players will only see the client changes since they override server-sent position.
+	// This breaks some things so we also give the server the most accurate representation
+	// even if players only see the client changes.
 
 	// Server attachment:
 	m_parent = parent;

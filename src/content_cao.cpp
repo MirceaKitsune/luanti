@@ -623,7 +623,7 @@ public:
 		m_frame_speed(15),
 		m_frame_blend(0),
 		// Nothing to do for m_bone_posrot
-		m_attachment_parent(NULL),
+		//m_attachment_parent(NULL),
 		m_attachment_bone(""),
 		m_attacmhent_position(v3f(0,0,0)),
 		m_attachment_rotation(v3f(0,0,0)),
@@ -918,8 +918,8 @@ public:
 
 	void updateNodePos()
 	{
-		if(m_attachment_parent != NULL)
-			return;
+		//if(m_attachment_parent != NULL)
+		//	return;
 
 		if(m_meshnode){
 			m_meshnode->setPosition(pos_translator.vect_show);
@@ -950,8 +950,8 @@ public:
 			updateBonePosRot();
 		}
 
-		if(m_attachment_parent == NULL) // Attachments should be glued to their parent by Irrlicht
-		{
+		//if(m_attachment_parent == NULL) // Attachments should be glued to their parent by Irrlicht
+		//{
 			if(m_prop.physical){
 				core::aabbox3d<f32> box = m_prop.collisionbox;
 				box.MinEdge *= BS;
@@ -995,7 +995,7 @@ public:
 					SimpleSoundSpec spec = ndef->get(n).sound_footstep;
 					m_gamedef->sound()->playSoundAt(spec, false, getPosition());
 				}
-			}
+			//}
 		}
 
 		m_anim_timer += dtime;
