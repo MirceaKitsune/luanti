@@ -911,26 +911,7 @@ public:
 	void updateNodePos()
 	{
 		if(m_attachment_parent != NULL)
-		{
-			// REMAINING ATTACHMENT ISSUES:
-			// We get to this function when this object is an attachment,
-			// that needs to be attached to the parent. If a bone is set,
-			// we must use the proper Irrlicht function to attach it to
-			// that bone. If one isn't set, simply attach it to the object's
-			// origin.
-		
-			// We already attach our entity on the server. Reason to attach
-			// to the client too is first of all lag (the server sends the position
-			// of the child separately than that of the parent so even locally
-			// you'd see the child following), and to allow skeletal attachment.
-			// Here in the client the attachment must be done with an Irrlicht
-			// function, not just copying origins.
-		
-			// m_attachment_bone is the name of the skeletal bone to attach to
-			// (if it's empty attach to the object, not a bone on its mesh).
-			// m_attachment_parent is the client object of the other entity we are
-			// attaching to. Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
-		}
+			return;
 
 		if(m_meshnode){
 			m_meshnode->setPosition(pos_translator.vect_show);
@@ -1221,6 +1202,39 @@ public:
 			}
 		}
 	}
+	
+	void updateAttachments()
+	{
+		// REMAINING ATTACHMENT ISSUES:
+		// We get to this function when the object is an attachment that needs to
+		// be attached to its parent. If a bone is set we attach it to that skeletal
+		// bone, otherwise just to the object's origin. Attachments should not copy parent
+		// position as that's laggy... instead the Irrlicht function(s) to attach should
+		// be used. If the parent object is NULL that means this object should be detached.
+		// This function is only called whenever a GENERIC_CMD_SET_ATTACHMENT message is received.
+		
+		// We already attach our entity on the server too (copy position). Reason we attach
+		// to the client as well is first of all lag. The server sends the position
+		// of the child separately than that of the parent, so even on localhost
+		// you'd see the child lagging behind. Models are also client-side, so this is
+		// needed to read bone data and attach to joints.
+		
+		// Functions:
+		// - m_attachment_parent is ClientActiveObject* for the parent entity.
+		// - m_attachment_bone is std::string of the bone, "" means none.
+		// - m_attachment_position is v3f and represents the position offset of the attachment.
+		// - m_attachment_rotation is v3f and represents the rotation offset of the attachment.
+		
+		// Implementation information:
+		// From what I know, we need to get the AnimatedMeshSceneNode of m_attachment_parent then
+		// use parent_node->addChild(m_animated_meshnode) for position attachment. For skeletal
+		// attachment I don't know yet. Same must be used to detach when a NULL parent is received.
+
+		//Useful links:
+		// http://irrlicht.sourceforge.net/forum/viewtopic.php?t=7514
+		// http://www.irrlicht3d.org/wiki/index.php?n=Main.HowToUseTheNewAnimationSystem
+		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
+	}
 
 	void processMessage(const std::string &data)
 	{
@@ -1248,6 +1262,8 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_UPDATE_POSITION)
 		{
+			// Not sent by the server if the object is an attachment
+			
 			m_position = readV3F1000(is);
 			m_velocity = readV3F1000(is);
 			m_acceleration = readV3F1000(is);
@@ -1257,21 +1273,18 @@ public:
 			bool is_end_position = readU8(is);
 			float update_interval = readF1000(is);
 
-			if(m_attachment_parent == NULL)
-			{
-				// Place us a bit higher if we're physical, to not sink into
-				// the ground due to sucky collision detection...
-				if(m_prop.physical)
-					m_position += v3f(0,0.002,0);
+			// Place us a bit higher if we're physical, to not sink into
+			// the ground due to sucky collision detection...
+			if(m_prop.physical)
+				m_position += v3f(0,0.002,0);
 				
-				if(do_interpolate){
-					if(!m_prop.physical)
-						pos_translator.update(m_position, is_end_position, update_interval);
-				} else {
-					pos_translator.init(m_position);
-				}
-				updateNodePos();
+			if(do_interpolate){
+				if(!m_prop.physical)
+					pos_translator.update(m_position, is_end_position, update_interval);
+			} else {
+				pos_translator.init(m_position);
 			}
+			updateNodePos();
 		}
 		else if(cmd == GENERIC_CMD_SET_TEXTURE_MOD)
 		{
@@ -1319,11 +1332,12 @@ public:
 				obj = m_env->getActiveObject(parent_id);
 			else
 				obj = NULL;
-
 			m_attachment_parent = obj;
 			m_attachment_bone = deSerializeString(is);
 			m_attacmhent_position = readV3F1000(is);
 			m_attachment_rotation = readV3F1000(is);
+
+			updateAttachments();
 		}
 		else if(cmd == GENERIC_CMD_PUNCHED)
 		{

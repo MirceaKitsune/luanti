@@ -218,6 +218,7 @@ public:
 
 		if(pos_f.getDistanceFrom(m_last_sent_position) > 0.05*BS)
 		{
+			// TODO: We shouldn't be sending this when the object is attached, but we can't check m_parent here
 			setBasePosition(pos_f);
 			m_last_sent_position = pos_f;
 
@@ -683,11 +684,12 @@ void LuaEntitySAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
 {
 	// Attachments need to be handled on both the server and client.
-	// If we attach only on the server, models (which are client-side)
-	// can't be read so we don't know the origin and orientation of bones
-	// (plus that it's laggy as the attachment is sent separately to clients).
-	// If we attach only on the client, the real position of attachments is
-	// not known to the server which can break some functionality.
+	// If we just attach on the server, we can only copy the position of the parent. Attachments
+	// are still sent to clients at an interval so players would see them following the parent
+	// instead of sticking to it, plus we can't read and attach to skeletal bones.
+	// If we just attach on the client, the server still sees the child at its original location.
+	// This can break some things, so we also give the server the most accurate representation
+	// even if players will only see the client changes since they override server-sent position.
 
 	// Server attachment:
 	m_parent = parent;
@@ -773,6 +775,9 @@ std::string LuaEntitySAO::getPropertyPacket()
 
 void LuaEntitySAO::sendPosition(bool do_interpolate, bool is_movement_end)
 {
+	if(m_parent != NULL)
+		return;
+	
 	m_last_sent_move_precision = m_base_position.getDistanceFrom(
 			m_last_sent_position);
 	m_last_sent_position_timer = 0;
@@ -994,7 +999,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	if(send_recommended == false)
 		return;
 
-	if(m_position_not_sent)
+	if(m_position_not_sent && m_parent != NULL)
 	{
 		m_position_not_sent = false;
 		float update_interval = m_env->getSendRecommendedInterval();
@@ -1174,11 +1179,12 @@ void PlayerSAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
 {
 	// Attachments need to be handled on both the server and client.
-	// If we attach only on the server, models (which are client-side)
-	// can't be read so we don't know the origin and orientation of bones
-	// (plus that it's laggy as the attachment is sent separately to clients).
-	// If we attach only on the client, the real position of attachments is
-	// not known to the server which can break some functionality.
+	// If we just attach on the server, we can only copy the position of the parent. Attachments
+	// are still sent to clients at an interval so players would see them following the parent
+	// instead of sticking to it, plus we can't read and attach to skeletal bones.
+	// If we just attach on the client, the server still sees the child at its original location.
+	// This can break some things, so we also give the server the most accurate representation
+	// even if players will only see the client changes since they override server-sent position.
 
 	// Server attachment:
 	m_parent = parent;
