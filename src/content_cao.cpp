@@ -1313,7 +1313,13 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
-			ClientActiveObject *obj = m_env->getActiveObject(readS16(is));
+			ClientActiveObject *obj;
+			int parent_id = readS16(is);
+			if(parent_id > 0)
+				obj = m_env->getActiveObject(parent_id);
+			else
+				obj = NULL;
+
 			m_attachment_parent = obj;
 			m_attachment_bone = deSerializeString(is);
 			m_attacmhent_position = readV3F1000(is);
