@@ -1252,12 +1252,15 @@ public:
 		if(m_attachment_parent != NULL)
 		{
 			// REMAINING ATTACHMENT ISSUES:
-			// This causes a segmentation fault because apparently m_attachment_parent is not the correct
-			// representation of the server-side object, when we set it further below in this file.
-			
+			// Using this causes a segmentation fault because apparently parent_mesh
+			// does not get the mesh of m_attachment_parent. Find out why and fix!
 			scene::IAnimatedMeshSceneNode *parent_mesh = m_attachment_parent->getAnimatedMeshSceneNode();
+
 			//v3f test = parent_mesh->getPosition();
 			//errorstream<<test.X<<","<<test.Y<<","<<test.Z<<"!#!#!#!#"<<std::endl;
+			
+			if(&parent_mesh)
+				errorstream<<"!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
 		}
 	}
 
@@ -1351,10 +1354,6 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
-			// REMAINING ATTACHMENT ISSUES:
-			// Apparently we don't get the correct ClientActiveObject (the one we're
-			// trying to represent from the server) below. Find out why any fix that.
-			
 			int parent_id = readS16(is);
 			ClientActiveObject *obj = m_env->getActiveObject(parent_id);
 			if(!parent_id || !obj)
