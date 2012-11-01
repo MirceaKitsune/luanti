@@ -1258,9 +1258,6 @@ public:
 
 			//v3f test = parent_mesh->getPosition();
 			//errorstream<<test.X<<","<<test.Y<<","<<test.Z<<"!#!#!#!#"<<std::endl;
-			
-			if(&parent_mesh)
-				errorstream<<"!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
 		}
 	}
 
