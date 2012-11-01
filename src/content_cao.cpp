@@ -700,6 +700,11 @@ public:
 		return pos_translator.vect_show;
 	}
 
+	scene::IAnimatedMeshSceneNode *getAnimatedMeshSceneNode()
+	{
+		return m_animated_meshnode;
+	}
+
 	void removeFromScene()
 	{
 		if(m_meshnode){
@@ -1243,6 +1248,17 @@ public:
 		// http://www.irrlicht3d.org/wiki/index.php?n=Main.HowToUseTheNewAnimationSystem
 		// http://gamedev.stackexchange.com/questions/27363/finding-the-endpoint-of-a-named-bone-in-irrlicht
 		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
+
+		if(m_attachment_parent != NULL)
+		{
+			// REMAINING ATTACHMENT ISSUES:
+			// This causes a segmentation fault because apparently m_attachment_parent is not the correct
+			// representation of the server-side object, when we set it further below in this file.
+			
+			scene::IAnimatedMeshSceneNode *parent_mesh = m_attachment_parent->getAnimatedMeshSceneNode();
+			//v3f test = parent_mesh->getPosition();
+			//errorstream<<test.X<<","<<test.Y<<","<<test.Z<<"!#!#!#!#"<<std::endl;
+		}
 	}
 
 	void processMessage(const std::string &data)
@@ -1335,11 +1351,13 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
-			ClientActiveObject *obj;
+			// REMAINING ATTACHMENT ISSUES:
+			// Apparently we don't get the correct ClientActiveObject (the one we're
+			// trying to represent from the server) below. Find out why any fix that.
+			
 			int parent_id = readS16(is);
-			if(parent_id > 0)
-				obj = m_env->getActiveObject(parent_id);
-			else
+			ClientActiveObject *obj = m_env->getActiveObject(parent_id);
+			if(!parent_id || !obj)
 				obj = NULL;
 			m_attachment_parent = obj;
 			m_attachment_bone = deSerializeString(is);

@@ -699,6 +699,7 @@ void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v
 	// Server attachment:
 	m_parent = parent;
 
+errorstream<<parent->getId()<<"%%%%%%%%"<<std::endl;
 	// Client attachment:
 	std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
 	// create message and add to list
@@ -1203,6 +1204,7 @@ void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f 
 	// Server attachment:
 	m_parent = parent;
 
+errorstream<<parent->getId()<<"%%%%%%%%"<<std::endl;
 	// Client attachment:
 	std::string str = gob_cmd_set_attachment(parent->getId(), bone, position, rotation);
 	// create message and add to list
