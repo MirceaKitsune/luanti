@@ -444,6 +444,8 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 
 	m_last_sent_position_timer += dtime;
 	
+	// Each frame, parent position is copied if the object is attached, otherwise it's calculated normally
+	// If the object gets detached this comes into effect automatically from the last known origin
 	if(m_parent != NULL)
 	{
 		v3f pos = m_parent->getBasePosition();
@@ -941,6 +943,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	m_time_from_last_punch += dtime;
 	m_nocheat_dig_time += dtime;
 
+	// Each frame, parent position is copied if the object is attached, otherwise it's calculated normally
+	// If the object gets detached this comes into effect automatically from the last known origin
 	if(m_parent != NULL)
 	{
 		v3f pos = m_parent->getBasePosition();
