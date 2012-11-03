@@ -702,9 +702,19 @@ public:
 		return pos_translator.vect_show;
 	}
 
+	scene::IMeshSceneNode *getMeshSceneNode()
+	{
+		return m_meshnode;
+	}
+
 	scene::IAnimatedMeshSceneNode *getAnimatedMeshSceneNode()
 	{
 		return m_animated_meshnode;
+	}
+
+	scene::IBillboardSceneNode *getSpriteSceneNode()
+	{
+		return m_spritenode;
 	}
 
 	bool isLocalPlayer()
@@ -1263,13 +1273,57 @@ public:
 
 		if (m_attachment_parent != NULL && !m_attachment_parent->isLocalPlayer())
 		{
-			scene::IAnimatedMeshSceneNode *parent_mesh = m_attachment_parent->getAnimatedMeshSceneNode();
+			// TODO: Perhaps use polymorphism here to save code duplication
+			scene::IMeshSceneNode *parent_mesh = NULL;
+			if(m_attachment_parent->getMeshSceneNode())
+				parent_mesh = m_attachment_parent->getMeshSceneNode();
+			scene::IAnimatedMeshSceneNode *parent_animated_mesh = NULL;
+			if(m_attachment_parent->getAnimatedMeshSceneNode())
+				parent_animated_mesh = m_attachment_parent->getAnimatedMeshSceneNode();
+			scene::IBillboardSceneNode *parent_sprite = NULL;
+			if(m_attachment_parent->getSpriteSceneNode())
+				parent_sprite = m_attachment_parent->getSpriteSceneNode();
 
-			v3f test = parent_mesh->getPosition();
+			scene::IBoneSceneNode *parent_bone = NULL;
+			if(parent_animated_mesh)
+				parent_bone = parent_animated_mesh->getJointNode(m_attachment_bone.c_str());
+
+			if(m_meshnode){
+				if(parent_bone)
+					m_meshnode->setParent(parent_bone);
+				else
+				{
+					if(parent_mesh) m_meshnode->setParent(parent_mesh);
+					else if(parent_animated_mesh) m_meshnode->setParent(parent_animated_mesh);
+					else if(parent_sprite) m_meshnode->setParent(parent_sprite);
+				}
+			}
+			if(m_animated_meshnode){
+				if(parent_bone)
+					m_meshnode->setParent(parent_bone);
+				else
+				{
+					if(parent_mesh) m_animated_meshnode->setParent(parent_mesh);
+					else if(parent_animated_mesh) m_animated_meshnode->setParent(parent_animated_mesh);
+					else if(parent_sprite) m_animated_meshnode->setParent(parent_sprite);
+				}
+			}
+			if(m_spritenode){
+				if(parent_bone)
+					m_meshnode->setParent(parent_bone);
+				else
+				{
+					if(parent_mesh) m_spritenode->setParent(parent_mesh);
+					else if(parent_animated_mesh) m_spritenode->setParent(parent_animated_mesh);
+					else if(parent_sprite) m_spritenode->setParent(parent_sprite);
+				}
+			}
+
+			/*v3f test = parent_mesh->getPosition();
 			errorstream<<test.X<<","<<test.Y<<","<<test.Z<<"!#!#!#!#"<<std::endl;
 
 			if(parent_mesh)
-				errorstream<<"!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
+				errorstream<<"!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;*/
 		}
 	}
 
