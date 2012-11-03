@@ -930,7 +930,7 @@ std::string PlayerSAO::getStaticData()
 }
 
 void PlayerSAO::step(float dtime, bool send_recommended)
-{	
+{
 	if(!m_properties_sent)
 	{
 		m_properties_sent = true;
