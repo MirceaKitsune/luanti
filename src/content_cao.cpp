@@ -594,6 +594,7 @@ private:
 	bool m_visuals_expired;
 	float m_step_distance_counter;
 	u8 m_last_light;
+	bool m_is_visible;
 
 public:
 	GenericCAO(IGameDef *gamedef, ClientEnvironment *env):
@@ -634,7 +635,8 @@ public:
 		m_reset_textures_timer(-1),
 		m_visuals_expired(false),
 		m_step_distance_counter(0),
-		m_last_light(255)
+		m_last_light(255),
+		m_is_visible(false)
 	{
 		if(gamedef == NULL)
 			ClientActiveObject::registerType(getType(), create);
@@ -691,7 +693,7 @@ public:
 	}
 	core::aabbox3d<f32>* getSelectionBox()
 	{
-		if(!m_prop.is_visible || m_is_local_player)
+		if(!m_prop.is_visible || !m_is_visible || m_is_local_player)
 			return NULL;
 		return &m_selection_box;
 	}
@@ -901,22 +903,27 @@ public:
 		
 	void updateLight(u8 light_at_pos)
 	{
-		bool is_visible = (m_hp != 0);
+		// Objects attached to the local player should always be hidden
+		if(m_attachment_parent != NULL && m_attachment_parent->isLocalPlayer())
+			m_is_visible = false;
+		else
+			m_is_visible = (m_hp != 0);
 		u8 li = decode_light(light_at_pos);
+
 		if(li != m_last_light){
 			m_last_light = li;
 			video::SColor color(255,li,li,li);
 			if(m_meshnode){
 				setMeshColor(m_meshnode->getMesh(), color);
-				m_meshnode->setVisible(is_visible);
+				m_meshnode->setVisible(m_is_visible);
 			}
 			if(m_animated_meshnode){
 				setMeshColor(m_animated_meshnode->getMesh(), color);
-				m_animated_meshnode->setVisible(is_visible);
+				m_animated_meshnode->setVisible(m_is_visible);
 			}
 			if(m_spritenode){
 				m_spritenode->setColor(color);
-				m_spritenode->setVisible(is_visible);
+				m_spritenode->setVisible(m_is_visible);
 			}
 		}
 	}
@@ -1253,10 +1260,6 @@ public:
 		// http://www.irrlicht3d.org/wiki/index.php?n=Main.HowToUseTheNewAnimationSystem
 		// http://gamedev.stackexchange.com/questions/27363/finding-the-endpoint-of-a-named-bone-in-irrlicht
 		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
-
-		//LocalPlayer *player = m_env->getLocalPlayer();
-		//assert(player);
-		//int test = player->getId();
 
 		if (m_attachment_parent != NULL && !m_attachment_parent->isLocalPlayer())
 		{
