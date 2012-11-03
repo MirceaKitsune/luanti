@@ -554,7 +554,7 @@ private:
 	// Only set at initialization
 	std::string m_name;
 	bool m_is_player;
-	bool m_is_local_player; // determined locally
+	bool m_is_local_player;
 	int m_id;
 	// Property-ish things
 	ObjectProperties m_prop;
@@ -703,6 +703,11 @@ public:
 	scene::IAnimatedMeshSceneNode *getAnimatedMeshSceneNode()
 	{
 		return m_animated_meshnode;
+	}
+
+	bool isLocalPlayer()
+	{
+		return m_is_local_player;
 	}
 
 	void removeFromScene()
@@ -1249,15 +1254,19 @@ public:
 		// http://gamedev.stackexchange.com/questions/27363/finding-the-endpoint-of-a-named-bone-in-irrlicht
 		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
 
-		if(m_attachment_parent != NULL)
+		//LocalPlayer *player = m_env->getLocalPlayer();
+		//assert(player);
+		//int test = player->getId();
+
+		if (m_attachment_parent != NULL && !m_attachment_parent->isLocalPlayer())
 		{
-			// REMAINING ATTACHMENT ISSUES:
-			// Using this causes a segmentation fault because apparently parent_mesh
-			// does not get the mesh of m_attachment_parent. Find out why and fix!
 			scene::IAnimatedMeshSceneNode *parent_mesh = m_attachment_parent->getAnimatedMeshSceneNode();
 
-			//v3f test = parent_mesh->getPosition();
-			//errorstream<<test.X<<","<<test.Y<<","<<test.Z<<"!#!#!#!#"<<std::endl;
+			v3f test = parent_mesh->getPosition();
+			errorstream<<test.X<<","<<test.Y<<","<<test.Z<<"!#!#!#!#"<<std::endl;
+
+			if(parent_mesh)
+				errorstream<<"!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
 		}
 	}
 
