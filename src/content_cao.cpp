@@ -1283,7 +1283,37 @@ public:
 		// http://gamedev.stackexchange.com/questions/27363/finding-the-endpoint-of-a-named-bone-in-irrlicht
 		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
 
-		if (m_attachment_parent != NULL && !m_attachment_parent->isLocalPlayer())
+		if(m_attachment_parent == NULL || m_attachment_parent->isLocalPlayer()) // Detach
+		{
+			if(m_meshnode)
+			{
+				v3f old_position = m_meshnode->getAbsolutePosition();
+				v3f old_rotation = m_meshnode->getRotation();
+				m_meshnode->setParent(m_smgr->getRootSceneNode());
+				m_meshnode->setPosition(old_position);
+				m_meshnode->setRotation(old_rotation);
+				m_meshnode->updateAbsolutePosition();
+			}
+			if(m_animated_meshnode)
+			{
+				v3f old_position = m_animated_meshnode->getAbsolutePosition();
+				v3f old_rotation = m_animated_meshnode->getRotation();
+				m_animated_meshnode->setParent(m_smgr->getRootSceneNode());
+				m_animated_meshnode->setPosition(old_position);
+				m_animated_meshnode->setRotation(old_rotation);
+				m_animated_meshnode->updateAbsolutePosition();
+			}
+			if(m_spritenode)
+			{
+				v3f old_position = m_spritenode->getAbsolutePosition();
+				v3f old_rotation = m_spritenode->getRotation();
+				m_spritenode->setParent(m_smgr->getRootSceneNode());
+				m_spritenode->setPosition(old_position);
+				m_spritenode->setRotation(old_rotation);
+				m_spritenode->updateAbsolutePosition();
+			}
+		}
+		else // Attach
 		{
 			// REMAINING ATTACHMENT ISSUES:
 			// The code below should cause the child to get attached, but for some reason it's not working
