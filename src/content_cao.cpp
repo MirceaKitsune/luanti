@@ -1470,8 +1470,7 @@ public:
 			m_frame_speed = readF1000(is);
 			m_frame_blend = readF1000(is);
 
-			updateAnimations();
-			expireVisuals();
+			expireVisuals(); // Automatically calls the proper function next
 		}
 		else if(cmd == GENERIC_CMD_SET_BONE_POSROT)
 		{
@@ -1480,8 +1479,7 @@ public:
 			v3f rotation = readV3F1000(is);
 			m_bone_posrot[bone] = core::vector2d<v3f>(position, rotation);
 
-			updateBonePosRot();
-			expireVisuals();
+			expireVisuals(); // Automatically calls the proper function next
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
@@ -1494,7 +1492,7 @@ public:
 			m_attachment_position = readV3F1000(is);
 			m_attachment_rotation = readV3F1000(is);
 
-			updateAttachments();
+			expireVisuals(); // Automatically calls the proper function next
 		}
 		else if(cmd == GENERIC_CMD_PUNCHED)
 		{
