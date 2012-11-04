@@ -852,7 +852,6 @@ public:
 			if(mesh)
 			{
 				m_animated_meshnode = smgr->addAnimatedMeshSceneNode(mesh, NULL);
-				m_animated_meshnode->setMD2Animation(scene::EMAT_STAND);
 				m_animated_meshnode->animateJoints(); // Needed for some animations
 				m_animated_meshnode->setScale(v3f(m_prop.visual_size.X,
 						m_prop.visual_size.Y,
@@ -1053,8 +1052,12 @@ public:
 			updateNodePos();
 		}
 
-		if(m_animated_meshnode != NULL && m_attachment_parent != NULL)
-			errorstream<<"Attachment position, step: "<<m_animated_meshnode->getAbsolutePosition().X<<","<<m_animated_meshnode->getAbsolutePosition().Y<<","<<m_animated_meshnode->getAbsolutePosition().Z<<std::endl;
+		// REMAINING ATTACHMENT ISSUES:
+		// Absolute Position of attachments is printed differently here than what it's set to in the SetAttachment function.
+		// Apparently here it prints the origin of the parent, but ignores the offset it was actually set to.
+
+		//if(m_animated_meshnode != NULL && m_attachment_parent != NULL)
+		//	errorstream<<"Attachment position, step: "<<m_animated_meshnode->getAbsolutePosition().X<<","<<m_animated_meshnode->getAbsolutePosition().Y<<","<<m_animated_meshnode->getAbsolutePosition().Z<<std::endl;
 	}
 
 	void updateTexturePos()
@@ -1284,7 +1287,8 @@ public:
 		{
 			// REMAINING ATTACHMENT ISSUES:
 			// The code below should cause the child to get attached, but for some reason it's not working
-			// A debug print confirms both position and absolute position are set accordingly, but the object still shows at origin 0,0,0
+			// A debug print confirms both position and absolute position are set accordingly, but the object still doesn't show
+			// Position and Absolute Position were tested to be set properly here
 
 			scene::IMeshSceneNode *parent_mesh = NULL;
 			if(m_attachment_parent->getMeshSceneNode())
@@ -1299,99 +1303,95 @@ public:
 			scene::IBoneSceneNode *parent_bone = NULL;
 			if(parent_animated_mesh && m_attachment_bone != "")
 				parent_bone = parent_animated_mesh->getJointNode(m_attachment_bone.c_str());
-			if(!parent_bone) // Should be false if the bone doesn't exist on the mesh
-				parent_bone = NULL;
 
 			// TODO: Perhaps use polymorphism here to save code duplication
 			if(m_meshnode){
 				if(parent_bone){
-					m_meshnode->setPosition(parent_bone->getPosition() + m_attachment_position);
-					m_meshnode->setRotation(parent_bone->getRotation() + m_attachment_rotation);
-					m_meshnode->updateAbsolutePosition();
 					m_meshnode->setParent(parent_bone);
+					m_meshnode->setPosition(m_attachment_position);
+					m_meshnode->setRotation(m_attachment_rotation);
+					m_meshnode->updateAbsolutePosition();
 				}
 				else
 				{
 					if(parent_mesh){
-						m_meshnode->setPosition(parent_mesh->getPosition() + m_attachment_position);
-						m_meshnode->setRotation(parent_mesh->getRotation() + m_attachment_rotation);
-						m_meshnode->updateAbsolutePosition();
 						m_meshnode->setParent(parent_mesh);
+						m_meshnode->setPosition(m_attachment_position);
+						m_meshnode->setRotation(m_attachment_rotation);
+						m_meshnode->updateAbsolutePosition();
 					}
 					else if(parent_animated_mesh){
-						m_meshnode->setPosition(parent_animated_mesh->getPosition() + m_attachment_position);
-						m_meshnode->setRotation(parent_animated_mesh->getRotation() + m_attachment_rotation);
-						m_meshnode->updateAbsolutePosition();
 						m_meshnode->setParent(parent_animated_mesh);
+						m_meshnode->setPosition(m_attachment_position);
+						m_meshnode->setRotation(m_attachment_rotation);
+						m_meshnode->updateAbsolutePosition();
 					}
 					else if(parent_sprite){
-						m_meshnode->setPosition(parent_sprite->getPosition() + m_attachment_position);
-						m_meshnode->setRotation(parent_sprite->getRotation() + m_attachment_rotation);
-						m_meshnode->updateAbsolutePosition();
 						m_meshnode->setParent(parent_sprite);
+						m_meshnode->setPosition(m_attachment_position);
+						m_meshnode->setRotation(m_attachment_rotation);
+						m_meshnode->updateAbsolutePosition();
 					}
 				}
 			}
 			if(m_animated_meshnode){
 				if(parent_bone){
-					m_animated_meshnode->setPosition(parent_bone->getPosition() + m_attachment_position);
-					m_animated_meshnode->setRotation(parent_bone->getRotation() + m_attachment_rotation);
-					m_animated_meshnode->updateAbsolutePosition();
 					m_animated_meshnode->setParent(parent_bone);
+					m_animated_meshnode->setPosition(m_attachment_position);
+					m_animated_meshnode->setRotation(m_attachment_rotation);
+					m_animated_meshnode->updateAbsolutePosition();
 				}
 				else
 				{
 					if(parent_mesh){
 						m_animated_meshnode->setParent(parent_mesh);
-						m_animated_meshnode->setPosition(parent_mesh->getPosition() + m_attachment_position);
-						m_animated_meshnode->setRotation(parent_mesh->getRotation() + m_attachment_rotation);
+						m_animated_meshnode->setPosition(m_attachment_position);
+						m_animated_meshnode->setRotation(m_attachment_rotation);
 						m_animated_meshnode->updateAbsolutePosition();
 					}
 					else if(parent_animated_mesh){
-						m_animated_meshnode->setPosition(parent_animated_mesh->getPosition() + m_attachment_position);
-						m_animated_meshnode->setRotation(parent_animated_mesh->getRotation() + m_attachment_rotation);
-						m_animated_meshnode->updateAbsolutePosition();
 						m_animated_meshnode->setParent(parent_animated_mesh);
+						m_animated_meshnode->setPosition(m_attachment_position);
+						m_animated_meshnode->setRotation(m_attachment_rotation);
+						m_animated_meshnode->updateAbsolutePosition();
 					}
 					else if(parent_sprite){
-						m_animated_meshnode->setPosition(parent_sprite->getPosition() + m_attachment_position);
-						m_animated_meshnode->setRotation(parent_sprite->getRotation() + m_attachment_rotation);
-						m_animated_meshnode->updateAbsolutePosition();
 						m_animated_meshnode->setParent(parent_sprite);
+						m_animated_meshnode->setPosition(m_attachment_position);
+						m_animated_meshnode->setRotation(m_attachment_rotation);
+						m_animated_meshnode->updateAbsolutePosition();
 					}
 				}
 			}
 			if(m_spritenode){
 				if(parent_bone){
-					m_spritenode->setPosition(parent_bone->getPosition() + m_attachment_position);
-					m_spritenode->setRotation(parent_bone->getRotation() + m_attachment_rotation);
-					m_spritenode->updateAbsolutePosition();
 					m_spritenode->setParent(parent_bone);
+					m_spritenode->setPosition(m_attachment_position);
+					m_spritenode->setRotation(m_attachment_rotation);
+					m_spritenode->updateAbsolutePosition();
 				}
 				else
 				{
 					if(parent_mesh){
-						m_spritenode->setPosition(parent_mesh->getPosition() + m_attachment_position);
-						m_spritenode->setRotation(parent_mesh->getRotation() + m_attachment_rotation);
-						m_spritenode->updateAbsolutePosition();
 						m_spritenode->setParent(parent_mesh);
+						m_spritenode->setPosition(m_attachment_position);
+						m_spritenode->setRotation(m_attachment_rotation);
+						m_spritenode->updateAbsolutePosition();
 					}
 					else if(parent_animated_mesh){
-						m_spritenode->setPosition(parent_animated_mesh->getPosition() + m_attachment_position * 0.1);
-						m_spritenode->setRotation(parent_animated_mesh->getRotation() + m_attachment_rotation);
-						m_spritenode->updateAbsolutePosition();
 						m_spritenode->setParent(parent_animated_mesh);
+						m_spritenode->setPosition(m_attachment_position);
+						m_spritenode->setRotation(m_attachment_rotation);
+						m_spritenode->updateAbsolutePosition();
 					}
 					else if(parent_sprite){
-						m_spritenode->setPosition(parent_sprite->getPosition() + m_attachment_position);
-						m_spritenode->setRotation(parent_sprite->getRotation() + m_attachment_rotation);
-						m_spritenode->updateAbsolutePosition();
 						m_spritenode->setParent(parent_sprite);
+						m_spritenode->setPosition(m_attachment_position);
+						m_spritenode->setRotation(m_attachment_rotation);
+						m_spritenode->updateAbsolutePosition();
 					}
 				}
 			}
-		if(m_animated_meshnode)
-			errorstream<<"Attachment position, attach: "<<m_animated_meshnode->getPosition().X<<","<<m_animated_meshnode->getPosition().Y<<","<<m_animated_meshnode->getPosition().Z<<std::endl;
 		}
 	}
 
