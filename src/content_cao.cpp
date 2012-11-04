@@ -980,6 +980,7 @@ public:
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
 			updateAnimations();
 			updateBonePosRot();
+			updateAttachments();
 		}
 
 		if(m_attachment_parent == NULL) // Attachments should be glued to their parent by Irrlicht
@@ -1051,6 +1052,9 @@ public:
 			m_yaw += dtime * m_prop.automatic_rotate * 180 / M_PI;
 			updateNodePos();
 		}
+
+		if(m_animated_meshnode)
+			errorstream<<"Attachment position: "<<m_animated_meshnode->getPosition().X<<","<<m_animated_meshnode->getPosition().Y<<","<<m_animated_meshnode->getPosition().Z<<std::endl;
 	}
 
 	void updateTexturePos()
@@ -1282,11 +1286,6 @@ public:
 			// The code below should cause the child to get attached, but for some reason it's not working
 			// A debug print confirms both position and absolute position are set accordingly, but the object still shows at origin 0,0,0
 
-			// player position is in nodes * 10, so for players divide by 10
-			float offset_pos = 1;
-			if(m_attachment_parent->isPlayer())
-				offset_pos = 0.1;
-
 			scene::IMeshSceneNode *parent_mesh = NULL;
 			if(m_attachment_parent->getMeshSceneNode())
 				parent_mesh = m_attachment_parent->getMeshSceneNode();
@@ -1306,7 +1305,7 @@ public:
 			// TODO: Perhaps use polymorphism here to save code duplication
 			if(m_meshnode){
 				if(parent_bone){
-					m_meshnode->setPosition(parent_bone->getPosition() * offset_pos);
+					m_meshnode->setPosition(parent_bone->getPosition());
 					m_meshnode->setRotation(parent_bone->getRotation());
 					m_meshnode->updateAbsolutePosition();
 					//m_meshnode->setParent(parent_bone);
@@ -1314,19 +1313,19 @@ public:
 				else
 				{
 					if(parent_mesh){
-						m_meshnode->setPosition(parent_mesh->getPosition() * offset_pos);
+						m_meshnode->setPosition(parent_mesh->getPosition());
 						m_meshnode->setRotation(parent_mesh->getRotation());
 						m_meshnode->updateAbsolutePosition();
 						//m_meshnode->setParent(parent_mesh);
 					}
 					else if(parent_animated_mesh){
-						m_meshnode->setPosition(parent_animated_mesh->getPosition() * offset_pos);
+						m_meshnode->setPosition(parent_animated_mesh->getPosition());
 						m_meshnode->setRotation(parent_animated_mesh->getRotation());
 						m_meshnode->updateAbsolutePosition();
 						//m_meshnode->setParent(parent_animated_mesh);
 					}
 					else if(parent_sprite){
-						m_meshnode->setPosition(parent_sprite->getPosition() * offset_pos);
+						m_meshnode->setPosition(parent_sprite->getPosition());
 						m_meshnode->setRotation(parent_sprite->getRotation());
 						m_meshnode->updateAbsolutePosition();
 						//m_meshnode->setParent(parent_sprite);
@@ -1335,7 +1334,7 @@ public:
 			}
 			if(m_animated_meshnode){
 				if(parent_bone){
-					m_animated_meshnode->setPosition(parent_bone->getPosition() * offset_pos);
+					m_animated_meshnode->setPosition(parent_bone->getPosition());
 					m_animated_meshnode->setRotation(parent_bone->getRotation());
 					m_animated_meshnode->updateAbsolutePosition();
 					//m_animated_meshnode->setParent(parent_bone);
@@ -1343,19 +1342,19 @@ public:
 				else
 				{
 					if(parent_mesh){
-						m_animated_meshnode->setPosition(parent_mesh->getPosition() * offset_pos);
+						m_animated_meshnode->setPosition(parent_mesh->getPosition());
 						m_animated_meshnode->setRotation(parent_mesh->getRotation());
 						m_animated_meshnode->updateAbsolutePosition();
 						//m_animated_meshnode->setParent(parent_mesh);
 					}
 					else if(parent_animated_mesh){
-						m_animated_meshnode->setPosition(parent_animated_mesh->getPosition() * offset_pos);
+						m_animated_meshnode->setPosition(parent_animated_mesh->getPosition());
 						m_animated_meshnode->setRotation(parent_animated_mesh->getRotation());
 						m_animated_meshnode->updateAbsolutePosition();
 						//m_animated_meshnode->setParent(parent_animated_mesh);
 					}
 					else if(parent_sprite){
-						m_animated_meshnode->setPosition(parent_sprite->getPosition() * offset_pos);
+						m_animated_meshnode->setPosition(parent_sprite->getPosition());
 						m_animated_meshnode->setRotation(parent_sprite->getRotation());
 						m_animated_meshnode->updateAbsolutePosition();
 						//m_animated_meshnode->setParent(parent_sprite);
@@ -1364,7 +1363,7 @@ public:
 			}
 			if(m_spritenode){
 				if(parent_bone){
-					m_spritenode->setPosition(parent_bone->getPosition() * offset_pos);
+					m_spritenode->setPosition(parent_bone->getPosition());
 					m_spritenode->setRotation(parent_bone->getRotation());
 					m_spritenode->updateAbsolutePosition();
 					//m_spritenode->setParent(parent_bone);
@@ -1372,26 +1371,25 @@ public:
 				else
 				{
 					if(parent_mesh){
-						m_spritenode->setPosition(parent_mesh->getPosition() * offset_pos);
+						m_spritenode->setPosition(parent_mesh->getPosition());
 						m_spritenode->setRotation(parent_mesh->getRotation());
 						m_spritenode->updateAbsolutePosition();
 						//m_spritenode->setParent(parent_mesh);
 					}
 					else if(parent_animated_mesh){
-						m_spritenode->setPosition(parent_animated_mesh->getPosition() * offset_pos);
+						m_spritenode->setPosition(parent_animated_mesh->getPosition());
 						m_spritenode->setRotation(parent_animated_mesh->getRotation());
 						m_spritenode->updateAbsolutePosition();
 						//m_spritenode->setParent(parent_animated_mesh);
 					}
 					else if(parent_sprite){
-						m_spritenode->setPosition(parent_sprite->getPosition() * offset_pos);
+						m_spritenode->setPosition(parent_sprite->getPosition());
 						m_spritenode->setRotation(parent_sprite->getRotation());
 						m_spritenode->updateAbsolutePosition();
 						//m_spritenode->setParent(parent_sprite);
 					}
 				}
 			}
-			errorstream<<"Attachment position: "<<m_animated_meshnode->getPosition().X<<","<<m_animated_meshnode->getPosition().Y<<","<<m_animated_meshnode->getPosition().Z<<std::endl;
 		}
 	}
 
