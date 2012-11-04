@@ -59,6 +59,7 @@ public:
 	virtual scene::IMeshSceneNode *getMeshSceneNode(){return NULL;}
 	virtual scene::IAnimatedMeshSceneNode *getAnimatedMeshSceneNode(){return NULL;}
 	virtual scene::IBillboardSceneNode *getSpriteSceneNode(){return NULL;}
+	virtual bool isPlayer(){return false;}
 	virtual bool isLocalPlayer(){return false;}
 	virtual bool doShowSelectionBox(){return true;}
 	
