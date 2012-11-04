@@ -1308,7 +1308,7 @@ public:
 					m_meshnode->setPosition(parent_bone->getPosition());
 					m_meshnode->setRotation(parent_bone->getRotation());
 					m_meshnode->updateAbsolutePosition();
-					//m_meshnode->setParent(parent_bone);
+					m_meshnode->setParent(parent_bone);
 				}
 				else
 				{
@@ -1316,19 +1316,19 @@ public:
 						m_meshnode->setPosition(parent_mesh->getPosition());
 						m_meshnode->setRotation(parent_mesh->getRotation());
 						m_meshnode->updateAbsolutePosition();
-						//m_meshnode->setParent(parent_mesh);
+						m_meshnode->setParent(parent_mesh);
 					}
 					else if(parent_animated_mesh){
 						m_meshnode->setPosition(parent_animated_mesh->getPosition());
 						m_meshnode->setRotation(parent_animated_mesh->getRotation());
 						m_meshnode->updateAbsolutePosition();
-						//m_meshnode->setParent(parent_animated_mesh);
+						m_meshnode->setParent(parent_animated_mesh);
 					}
 					else if(parent_sprite){
 						m_meshnode->setPosition(parent_sprite->getPosition());
 						m_meshnode->setRotation(parent_sprite->getRotation());
 						m_meshnode->updateAbsolutePosition();
-						//m_meshnode->setParent(parent_sprite);
+						m_meshnode->setParent(parent_sprite);
 					}
 				}
 			}
@@ -1337,7 +1337,7 @@ public:
 					m_animated_meshnode->setPosition(parent_bone->getPosition());
 					m_animated_meshnode->setRotation(parent_bone->getRotation());
 					m_animated_meshnode->updateAbsolutePosition();
-					//m_animated_meshnode->setParent(parent_bone);
+					m_animated_meshnode->setParent(parent_bone);
 				}
 				else
 				{
@@ -1345,19 +1345,19 @@ public:
 						m_animated_meshnode->setPosition(parent_mesh->getPosition());
 						m_animated_meshnode->setRotation(parent_mesh->getRotation());
 						m_animated_meshnode->updateAbsolutePosition();
-						//m_animated_meshnode->setParent(parent_mesh);
+						m_animated_meshnode->setParent(parent_mesh);
 					}
 					else if(parent_animated_mesh){
 						m_animated_meshnode->setPosition(parent_animated_mesh->getPosition());
 						m_animated_meshnode->setRotation(parent_animated_mesh->getRotation());
 						m_animated_meshnode->updateAbsolutePosition();
-						//m_animated_meshnode->setParent(parent_animated_mesh);
+						m_animated_meshnode->setParent(parent_animated_mesh);
 					}
 					else if(parent_sprite){
 						m_animated_meshnode->setPosition(parent_sprite->getPosition());
 						m_animated_meshnode->setRotation(parent_sprite->getRotation());
 						m_animated_meshnode->updateAbsolutePosition();
-						//m_animated_meshnode->setParent(parent_sprite);
+						m_animated_meshnode->setParent(parent_sprite);
 					}
 				}
 			}
@@ -1366,7 +1366,7 @@ public:
 					m_spritenode->setPosition(parent_bone->getPosition());
 					m_spritenode->setRotation(parent_bone->getRotation());
 					m_spritenode->updateAbsolutePosition();
-					//m_spritenode->setParent(parent_bone);
+					m_spritenode->setParent(parent_bone);
 				}
 				else
 				{
@@ -1374,19 +1374,19 @@ public:
 						m_spritenode->setPosition(parent_mesh->getPosition());
 						m_spritenode->setRotation(parent_mesh->getRotation());
 						m_spritenode->updateAbsolutePosition();
-						//m_spritenode->setParent(parent_mesh);
+						m_spritenode->setParent(parent_mesh);
 					}
 					else if(parent_animated_mesh){
 						m_spritenode->setPosition(parent_animated_mesh->getPosition());
 						m_spritenode->setRotation(parent_animated_mesh->getRotation());
 						m_spritenode->updateAbsolutePosition();
-						//m_spritenode->setParent(parent_animated_mesh);
+						m_spritenode->setParent(parent_animated_mesh);
 					}
 					else if(parent_sprite){
 						m_spritenode->setPosition(parent_sprite->getPosition());
 						m_spritenode->setRotation(parent_sprite->getRotation());
 						m_spritenode->updateAbsolutePosition();
-						//m_spritenode->setParent(parent_sprite);
+						m_spritenode->setParent(parent_sprite);
 					}
 				}
 			}
