@@ -1123,9 +1123,15 @@ public:
 				m_spritenode->setMaterialTexture(0,
 						tsrc->getTextureRaw(texturestring));
 
-				// Does not work yet with the current lighting settings
-				m_meshnode->getMaterial(0).AmbientColor = m_prop.colors[0];
-				m_meshnode->getMaterial(0).DiffuseColor = m_prop.colors[0];
+				// This allows setting per-material colors. However, until a real lighting
+				// system is added, the code below will have no effect. Once MineTest
+				// has directional lighting, it should work automatically.
+				if(m_prop.colors.size() >= 1)
+				{
+					m_meshnode->getMaterial(0).AmbientColor = m_prop.colors[0];
+					m_meshnode->getMaterial(0).DiffuseColor = m_prop.colors[0];
+					m_meshnode->getMaterial(0).SpecularColor = m_prop.colors[0];
+				}
 			}
 		}
 		if(m_animated_meshnode)
@@ -1153,9 +1159,12 @@ public:
 				}
 				for (u32 i = 0; i < m_prop.colors.size(); ++i)
 				{
-					// Does not work yet with the current lighting settings
+					// This allows setting per-material colors. However, until a real lighting
+					// system is added, the code below will have no effect. Once MineTest
+					// has directional lighting, it should work automatically.
 					m_animated_meshnode->getMaterial(i).AmbientColor = m_prop.colors[i];
 					m_animated_meshnode->getMaterial(i).DiffuseColor = m_prop.colors[i];
+					m_animated_meshnode->getMaterial(i).SpecularColor = m_prop.colors[i];
 				}
 			}
 		}
@@ -1184,9 +1193,15 @@ public:
 					material.getTextureMatrix(0).setTextureTranslate(pos.X, pos.Y);
 					material.getTextureMatrix(0).setTextureScale(size.X, size.Y);
 
-					// Does not work yet with the current lighting settings
-					m_meshnode->getMaterial(i).AmbientColor = m_prop.colors[i];
-					m_meshnode->getMaterial(i).DiffuseColor = m_prop.colors[i];
+					// This allows setting per-material colors. However, until a real lighting
+					// system is added, the code below will have no effect. Once MineTest
+					// has directional lighting, it should work automatically.
+					if(m_prop.colors.size() > i)
+					{
+						m_meshnode->getMaterial(i).AmbientColor = m_prop.colors[i];
+						m_meshnode->getMaterial(i).DiffuseColor = m_prop.colors[i];
+						m_meshnode->getMaterial(i).SpecularColor = m_prop.colors[i];
+					}
 				}
 			}
 			else if(m_prop.visual == "upright_sprite")
@@ -1201,9 +1216,15 @@ public:
 					buf->getMaterial().setTexture(0,
 							tsrc->getTextureRaw(tname));
 					
-					// Does not work yet with the current lighting settings
-					m_meshnode->getMaterial(0).AmbientColor = m_prop.colors[0];
-					m_meshnode->getMaterial(0).DiffuseColor = m_prop.colors[0];
+					// This allows setting per-material colors. However, until a real lighting
+					// system is added, the code below will have no effect. Once MineTest
+					// has directional lighting, it should work automatically.
+					if(m_prop.colors.size() >= 1)
+					{
+						buf->getMaterial().AmbientColor = m_prop.colors[0];
+						buf->getMaterial().DiffuseColor = m_prop.colors[0];
+						buf->getMaterial().SpecularColor = m_prop.colors[0];
+					}
 				}
 				{
 					std::string tname = "unknown_object.png";
@@ -1216,9 +1237,21 @@ public:
 					buf->getMaterial().setTexture(0,
 							tsrc->getTextureRaw(tname));
 
-					// Does not work yet with the current lighting settings
-					m_meshnode->getMaterial(1).AmbientColor = m_prop.colors[1]; 
-					m_meshnode->getMaterial(1).DiffuseColor = m_prop.colors[1]; 
+					// This allows setting per-material colors. However, until a real lighting
+					// system is added, the code below will have no effect. Once MineTest
+					// has directional lighting, it should work automatically.
+					if(m_prop.colors.size() >= 2)
+					{
+						buf->getMaterial().AmbientColor = m_prop.colors[1];
+						buf->getMaterial().DiffuseColor = m_prop.colors[1];
+						buf->getMaterial().SpecularColor = m_prop.colors[1];
+					}
+					else if(m_prop.colors.size() >= 1)
+					{
+						buf->getMaterial().AmbientColor = m_prop.colors[0];
+						buf->getMaterial().DiffuseColor = m_prop.colors[0];
+						buf->getMaterial().SpecularColor = m_prop.colors[0];
+					}
 				}
 			}
 		}
