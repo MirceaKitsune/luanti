@@ -580,7 +580,7 @@ private:
 	v2f m_frames;
 	int m_frame_speed;
 	int m_frame_blend;
-	std::map<std::string, core::vector2d<v3f> > m_bone_posrot;
+	std::map<std::string, core::vector2d<v3f> > m_bone_posrot; // stores position and rotation for each bone name
 	ClientActiveObject* m_attachment_parent;
 	std::string m_attachment_bone;
 	v3f m_attachment_position;
@@ -1259,7 +1259,7 @@ public:
 
 	void updateAnimations()
 	{
-		if(!m_animated_meshnode)
+		if(m_animated_meshnode == NULL)
 			return;
 
 		m_animated_meshnode->setFrameLoop((int)m_frames.X, (int)m_frames.Y);
@@ -1269,14 +1269,17 @@ public:
 
 	void updateBonePosRot()
 	{
-		if(m_bone_posrot.size() > 0)
-		{
-			m_animated_meshnode->setJointMode(irr::scene::EJUOR_CONTROL); // To write positions to the mesh on render
-			for(std::map<std::string, core::vector2d<v3f> >::const_iterator ii = m_bone_posrot.begin(); ii != m_bone_posrot.end(); ++ii){
-				std::string bone_name = (*ii).first;
-				v3f bone_pos = (*ii).second.X;
-				v3f bone_rot = (*ii).second.Y;
-				irr::scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
+		if(!m_bone_posrot.size() || m_animated_meshnode == NULL)
+			return;
+
+		m_animated_meshnode->setJointMode(irr::scene::EJUOR_CONTROL); // To write positions to the mesh on render
+		for(std::map<std::string, core::vector2d<v3f> >::const_iterator ii = m_bone_posrot.begin(); ii != m_bone_posrot.end(); ++ii){
+			std::string bone_name = (*ii).first;
+			v3f bone_pos = (*ii).second.X;
+			v3f bone_rot = (*ii).second.Y;
+			irr::scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
+			if(bone)
+			{
 				bone->setPosition(bone_pos);
 				bone->setRotation(bone_rot);
 			}
