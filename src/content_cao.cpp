@@ -693,13 +693,13 @@ public:
 	}
 	core::aabbox3d<f32>* getSelectionBox()
 	{
-		if(!m_prop.is_visible || !m_is_visible || m_is_local_player || m_attachment_parent != NULL)
+		if(!m_prop.is_visible || !m_is_visible || m_is_local_player || isAttached())
 			return NULL;
 		return &m_selection_box;
 	}
 	v3f getPosition()
 	{
-		if(m_attachment_parent != NULL){
+		if(isAttached()){
 			if(m_meshnode)
 				return m_meshnode->getAbsolutePosition();
 			if(m_animated_meshnode)
@@ -734,6 +734,13 @@ public:
 	bool isLocalPlayer()
 	{
 		return m_is_local_player;
+	}
+
+	bool isAttached()
+	{
+		if(m_attachment_parent);
+			return true;
+		return false;
 	}
 
 	void removeFromScene()
@@ -927,7 +934,7 @@ public:
 	void updateLight(u8 light_at_pos)
 	{
 		// Objects attached to the local player should always be hidden
-		if(m_attachment_parent != NULL && m_attachment_parent->isLocalPlayer())
+		if(isAttached() && m_attachment_parent->isLocalPlayer())
 			m_is_visible = false;
 		else
 			m_is_visible = (m_hp != 0);
@@ -958,7 +965,7 @@ public:
 
 	void updateNodePos()
 	{
-		if(m_attachment_parent != NULL)
+		if(isAttached())
 			return;
 
 		if(m_meshnode){
@@ -991,7 +998,7 @@ public:
 			updateAttachments();
 		}
 
-		if(m_attachment_parent != NULL) // Attachments should be glued to their parent by Irrlicht
+		if(isAttached()) // Attachments should be glued to their parent by Irrlicht
 		{
 			// Set these for later
 			if(m_meshnode)
@@ -1068,7 +1075,7 @@ public:
 				updateTextures("");
 			}
 		}
-		if(m_attachment_parent == NULL && fabs(m_prop.automatic_rotate) > 0.001){
+		if(!isAttached() && fabs(m_prop.automatic_rotate) > 0.001){
 			m_yaw += dtime * m_prop.automatic_rotate * 180 / M_PI;
 			updateNodePos();
 		}
@@ -1333,7 +1340,7 @@ public:
 		// http://gamedev.stackexchange.com/questions/27363/finding-the-endpoint-of-a-named-bone-in-irrlicht
 		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
 
-		if(m_attachment_parent == NULL || m_attachment_parent->isLocalPlayer()) // Detach
+		if(!isAttached() || m_attachment_parent->isLocalPlayer()) // Detach
 		{
 			if(m_meshnode)
 			{
@@ -1511,7 +1518,7 @@ public:
 			bool is_end_position = readU8(is);
 			float update_interval = readF1000(is);
 
-			if(m_attachment_parent != NULL) // Just in case
+			if(isAttached()) // Just in case
 				return;
 
 			// Place us a bit higher if we're physical, to not sink into
