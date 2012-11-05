@@ -581,7 +581,7 @@ private:
 	int m_frame_speed;
 	int m_frame_blend;
 	std::map<std::string, core::vector2d<v3f> > m_bone_posrot; // stores position and rotation for each bone name
-	ClientActiveObject* m_attachment_parent;
+	int m_attachment_parent_id;
 	std::string m_attachment_bone;
 	v3f m_attachment_position;
 	v3f m_attachment_rotation;
@@ -624,7 +624,7 @@ public:
 		m_frame_speed(15),
 		m_frame_blend(0),
 		// Nothing to do for m_bone_posrot
-		m_attachment_parent(NULL),
+		m_attachment_parent_id(0),
 		m_attachment_bone(""),
 		m_attachment_position(v3f(0,0,0)),
 		m_attachment_rotation(v3f(0,0,0)),
@@ -693,13 +693,13 @@ public:
 	}
 	core::aabbox3d<f32>* getSelectionBox()
 	{
-		if(!m_prop.is_visible || !m_is_visible || m_is_local_player || isAttached())
+		if(!m_prop.is_visible || !m_is_visible || m_is_local_player || getParent() != NULL)
 			return NULL;
 		return &m_selection_box;
 	}
 	v3f getPosition()
 	{
-		if(isAttached()){
+		if(getParent() != NULL){
 			if(m_meshnode)
 				return m_meshnode->getAbsolutePosition();
 			if(m_animated_meshnode)
@@ -736,11 +736,14 @@ public:
 		return m_is_local_player;
 	}
 
-	bool isAttached()
+	ClientActiveObject *getParent()
 	{
-		if(m_attachment_parent);
-			return true;
-		return false;
+		if(!m_attachment_parent_id)
+			return NULL;
+		ClientActiveObject *obj = m_env->getActiveObject(m_attachment_parent_id);
+		if(!obj)
+			return NULL;
+		return obj;
 	}
 
 	void removeFromScene()
@@ -934,7 +937,7 @@ public:
 	void updateLight(u8 light_at_pos)
 	{
 		// Objects attached to the local player should always be hidden
-		if(isAttached() && m_attachment_parent->isLocalPlayer())
+		if(getParent() != NULL && getParent()->isLocalPlayer())
 			m_is_visible = false;
 		else
 			m_is_visible = (m_hp != 0);
@@ -965,7 +968,7 @@ public:
 
 	void updateNodePos()
 	{
-		if(isAttached())
+		if(getParent() != NULL)
 			return;
 
 		if(m_meshnode){
@@ -998,7 +1001,7 @@ public:
 			updateAttachments();
 		}
 
-		if(isAttached()) // Attachments should be glued to their parent by Irrlicht
+		if(getParent() != NULL) // Attachments should be glued to their parent by Irrlicht
 		{
 			// Set these for later
 			if(m_meshnode)
@@ -1075,7 +1078,7 @@ public:
 				updateTextures("");
 			}
 		}
-		if(!isAttached() && fabs(m_prop.automatic_rotate) > 0.001){
+		if(getParent() == NULL && fabs(m_prop.automatic_rotate) > 0.001){
 			m_yaw += dtime * m_prop.automatic_rotate * 180 / M_PI;
 			updateNodePos();
 		}
@@ -1340,7 +1343,7 @@ public:
 		// http://gamedev.stackexchange.com/questions/27363/finding-the-endpoint-of-a-named-bone-in-irrlicht
 		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
 
-		if(!isAttached() || m_attachment_parent->isLocalPlayer()) // Detach
+		if(getParent() == NULL || getParent()->isLocalPlayer()) // Detach
 		{
 			if(m_meshnode)
 			{
@@ -1378,14 +1381,14 @@ public:
 			// Position and Absolute Position were tested to be set properly here
 
 			scene::IMeshSceneNode *parent_mesh = NULL;
-			if(m_attachment_parent->getMeshSceneNode())
-				parent_mesh = m_attachment_parent->getMeshSceneNode();
+			if(getParent()->getMeshSceneNode())
+				parent_mesh = getParent()->getMeshSceneNode();
 			scene::IAnimatedMeshSceneNode *parent_animated_mesh = NULL;
-			if(m_attachment_parent->getAnimatedMeshSceneNode())
-				parent_animated_mesh = m_attachment_parent->getAnimatedMeshSceneNode();
+			if(getParent()->getAnimatedMeshSceneNode())
+				parent_animated_mesh = getParent()->getAnimatedMeshSceneNode();
 			scene::IBillboardSceneNode *parent_sprite = NULL;
-			if(m_attachment_parent->getSpriteSceneNode())
-				parent_sprite = m_attachment_parent->getSpriteSceneNode();
+			if(getParent()->getSpriteSceneNode())
+				parent_sprite = getParent()->getSpriteSceneNode();
 
 			scene::IBoneSceneNode *parent_bone = NULL;
 			if(parent_animated_mesh && m_attachment_bone != "")
@@ -1518,7 +1521,7 @@ public:
 			bool is_end_position = readU8(is);
 			float update_interval = readF1000(is);
 
-			if(isAttached()) // Just in case
+			if(getParent() != NULL) // Just in case
 				return;
 
 			// Place us a bit higher if we're physical, to not sink into
@@ -1572,11 +1575,7 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
-			int parent_id = readS16(is);
-			ClientActiveObject *obj = m_env->getActiveObject(parent_id);
-			if(!parent_id || !obj)
-				obj = NULL;
-			m_attachment_parent = obj;
+			m_attachment_parent_id = readS16(is);
 			m_attachment_bone = deSerializeString(is);
 			m_attachment_position = readV3F1000(is);
 			m_attachment_rotation = readV3F1000(is);
