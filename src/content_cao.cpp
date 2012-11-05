@@ -693,12 +693,21 @@ public:
 	}
 	core::aabbox3d<f32>* getSelectionBox()
 	{
-		if(!m_prop.is_visible || !m_is_visible || m_is_local_player)
+		if(!m_prop.is_visible || !m_is_visible || m_is_local_player || m_attachment_parent != NULL)
 			return NULL;
 		return &m_selection_box;
 	}
 	v3f getPosition()
 	{
+		if(m_attachment_parent != NULL){
+			if(m_meshnode)
+				return m_meshnode->getAbsolutePosition();
+			if(m_animated_meshnode)
+				return m_animated_meshnode->getAbsolutePosition();
+			if(m_spritenode)
+				return m_spritenode->getAbsolutePosition();
+			return v3f(0,0,0); // Just in case
+		}
 		return pos_translator.vect_show;
 	}
 
@@ -982,7 +991,19 @@ public:
 			updateAttachments();
 		}
 
-		if(m_attachment_parent == NULL) // Attachments should be glued to their parent by Irrlicht
+		if(m_attachment_parent != NULL) // Attachments should be glued to their parent by Irrlicht
+		{
+			// Set these for later
+			if(m_meshnode)
+				m_position = m_meshnode->getAbsolutePosition();
+			if(m_animated_meshnode)
+				m_position = m_animated_meshnode->getAbsolutePosition();
+			if(m_spritenode)
+				m_position = m_spritenode->getAbsolutePosition();
+			m_velocity = v3f(0,0,0);
+			m_acceleration = v3f(0,0,0);
+		}
+		else
 		{
 			if(m_prop.physical){
 				core::aabbox3d<f32> box = m_prop.collisionbox;
@@ -1047,17 +1068,10 @@ public:
 				updateTextures("");
 			}
 		}
-		if(fabs(m_prop.automatic_rotate) > 0.001){
+		if(m_attachment_parent == NULL && fabs(m_prop.automatic_rotate) > 0.001){
 			m_yaw += dtime * m_prop.automatic_rotate * 180 / M_PI;
 			updateNodePos();
 		}
-
-		// REMAINING ATTACHMENT ISSUES:
-		// Absolute Position of attachments is printed differently here than what it's set to in the SetAttachment function.
-		// Apparently here it prints the origin of the parent, but ignores the offset it was actually set to.
-
-		//if(m_animated_meshnode != NULL && m_attachment_parent != NULL)
-		//	errorstream<<"Attachment position, step: "<<m_animated_meshnode->getAbsolutePosition().X<<","<<m_animated_meshnode->getAbsolutePosition().Y<<","<<m_animated_meshnode->getAbsolutePosition().Z<<std::endl;
 	}
 
 	void updateTexturePos()
@@ -1488,7 +1502,6 @@ public:
 		else if(cmd == GENERIC_CMD_UPDATE_POSITION)
 		{
 			// Not sent by the server if the object is an attachment
-			
 			m_position = readV3F1000(is);
 			m_velocity = readV3F1000(is);
 			m_acceleration = readV3F1000(is);
@@ -1497,6 +1510,9 @@ public:
 			bool do_interpolate = readU8(is);
 			bool is_end_position = readU8(is);
 			float update_interval = readF1000(is);
+
+			if(m_attachment_parent != NULL) // Just in case
+				return;
 
 			// Place us a bit higher if we're physical, to not sink into
 			// the ground due to sucky collision detection...
