@@ -51,6 +51,8 @@ struct ToolCapabilities;
 
 core::map<u16, ClientActiveObject::Factory> ClientActiveObject::m_types;
 
+std::vector<core::vector2d<int> > attachment_list; // X is child ID, Y is parent ID
+
 /*
 	SmoothTranslator
 */
@@ -581,7 +583,6 @@ private:
 	int m_frame_speed;
 	int m_frame_blend;
 	std::map<std::string, core::vector2d<v3f> > m_bone_posrot; // stores position and rotation for each bone name
-	int m_attachment_parent_id;
 	std::string m_attachment_bone;
 	v3f m_attachment_position;
 	v3f m_attachment_rotation;
@@ -624,7 +625,6 @@ public:
 		m_frame_speed(15),
 		m_frame_blend(0),
 		// Nothing to do for m_bone_posrot
-		m_attachment_parent_id(0),
 		m_attachment_bone(""),
 		m_attachment_position(v3f(0,0,0)),
 		m_attachment_rotation(v3f(0,0,0)),
@@ -713,17 +713,23 @@ public:
 
 	scene::IMeshSceneNode *getMeshSceneNode()
 	{
-		return m_meshnode;
+		if(m_meshnode)
+			return m_meshnode;
+		return NULL;
 	}
 
 	scene::IAnimatedMeshSceneNode *getAnimatedMeshSceneNode()
 	{
-		return m_animated_meshnode;
+		if(m_animated_meshnode)
+			return m_animated_meshnode;
+		return NULL;
 	}
 
 	scene::IBillboardSceneNode *getSpriteSceneNode()
 	{
-		return m_spritenode;
+		if(m_spritenode)
+			return m_spritenode;
+		return NULL;
 	}
 
 	bool isPlayer()
@@ -736,18 +742,67 @@ public:
 		return m_is_local_player;
 	}
 
-	ClientActiveObject *getParent()
+	void updateParent()
 	{
-		if(!m_attachment_parent_id)
-			return NULL;
-		ClientActiveObject *obj = m_env->getActiveObject(m_attachment_parent_id);
-		if(!obj)
-			return NULL;
-		return obj;
+		updateAttachments();
 	}
 
-	void removeFromScene()
+	ClientActiveObject *getParent()
 	{
+		ClientActiveObject *obj = NULL;
+		for(std::vector<core::vector2d<int> >::const_iterator cii = attachment_list.begin(); cii != attachment_list.end(); cii++)
+		{
+			if(cii->X == this->getId()){ // This ID is our child
+				if(cii->Y > 0){ // A parent ID exists for our child
+					if(cii->X != cii->Y){ // The parent and child ID are not the same
+						obj = m_env->getActiveObject(cii->Y);
+					}
+				}
+				break;
+			}
+		}
+		if(obj)
+			return obj;
+		return NULL;
+	}
+
+	void removeFromScene(bool permanent)
+	{
+		// bool permanent should be true when removing the object permanently and false when it's only refreshed (and comes back in a few frames)
+
+		// If this object is being removed, either permanently or just to refresh it, then all
+		// objects attached to it must be unparented else Irrlicht causes a segmentation fault.
+		for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+		{
+			if(ii->Y == this->getId()) // This is a child of our parent
+			{
+				ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
+				if(obj)
+				{
+					if(permanent)
+					{
+						// The parent is being permanently removed, so the child stays detached
+						ii->Y = 0;
+						obj->updateParent();
+					}
+					else
+					{
+						// The parent is being refreshed, detach our child enough to avoid bad memory reads
+						// This only stays into effect for a few frames, as addToScene will parent its children back
+						scene::IMeshSceneNode *m_child_meshnode = obj->getMeshSceneNode();
+						scene::IAnimatedMeshSceneNode *m_child_animated_meshnode = obj->getAnimatedMeshSceneNode();
+						scene::IBillboardSceneNode *m_child_spritenode = obj->getSpriteSceneNode();
+						if(m_child_meshnode)
+							m_child_meshnode->setParent(m_smgr->getRootSceneNode());
+						if(m_child_animated_meshnode)
+							m_child_animated_meshnode->setParent(m_smgr->getRootSceneNode());
+						if(m_child_spritenode)
+							m_child_spritenode->setParent(m_smgr->getRootSceneNode());
+					}
+				}
+			}
+		}
+
 		if(m_meshnode){
 			m_meshnode->remove();
 			m_meshnode = NULL;
@@ -767,6 +822,18 @@ public:
 	{
 		m_smgr = smgr;
 		m_irr = irr;
+
+		// If this object has attachments and is being re-added after having been refreshed, parent its children back.
+		// The parent ID for this child hasn't been changed in attachment_list, so just update its attachments.
+		for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+		{
+			if(ii->Y == this->getId()) // This is a child of our parent
+			{
+				ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
+				if(obj)
+					obj->updateParent();
+			}
+		}
 
 		if(m_meshnode != NULL || m_animated_meshnode != NULL || m_spritenode != NULL)
 			return;
@@ -847,7 +914,7 @@ public:
 			mesh->addMeshBuffer(buf);
 			buf->drop();
 			}
-			m_meshnode = smgr->addMeshSceneNode(mesh, NULL);
+			m_meshnode = smgr->addMeshSceneNode(mesh, m_smgr->getRootSceneNode());
 			mesh->drop();
 			// Set it to use the materials of the meshbuffers directly.
 			// This is needed for changing the texture in the future
@@ -856,7 +923,7 @@ public:
 		else if(m_prop.visual == "cube"){
 			infostream<<"GenericCAO::addToScene(): cube"<<std::endl;
 			scene::IMesh *mesh = createCubeMesh(v3f(BS,BS,BS));
-			m_meshnode = smgr->addMeshSceneNode(mesh, NULL);
+			m_meshnode = smgr->addMeshSceneNode(mesh, m_smgr->getRootSceneNode());
 			mesh->drop();
 			
 			m_meshnode->setScale(v3f(m_prop.visual_size.X,
@@ -870,7 +937,7 @@ public:
 			scene::IAnimatedMesh *mesh = smgr->getMesh(m_prop.mesh.c_str());
 			if(mesh)
 			{
-				m_animated_meshnode = smgr->addAnimatedMeshSceneNode(mesh, NULL);
+				m_animated_meshnode = smgr->addAnimatedMeshSceneNode(mesh, m_smgr->getRootSceneNode());
 				m_animated_meshnode->animateJoints(); // Needed for some animations
 				m_animated_meshnode->setScale(v3f(m_prop.visual_size.X,
 						m_prop.visual_size.Y,
@@ -895,7 +962,7 @@ public:
 						irr->getVideoDriver()->getMeshManipulator();
 				scene::IMesh *mesh = manip->createMeshUniquePrimitives(item_mesh);
 
-				m_meshnode = smgr->addMeshSceneNode(mesh, NULL);
+				m_meshnode = smgr->addMeshSceneNode(mesh, m_smgr->getRootSceneNode());
 				mesh->drop();
 				
 				m_meshnode->setScale(v3f(m_prop.visual_size.X/2,
@@ -994,11 +1061,12 @@ public:
 
 		if(m_visuals_expired && m_smgr && m_irr){
 			m_visuals_expired = false;
-			removeFromScene();
+			removeFromScene(false);
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
 			updateAnimations();
 			updateBonePosRot();
 			updateAttachments();
+			return;
 		}
 
 		if(getParent() != NULL) // Attachments should be glued to their parent by Irrlicht
@@ -1562,7 +1630,7 @@ public:
 			m_frame_speed = readF1000(is);
 			m_frame_blend = readF1000(is);
 
-			expireVisuals(); // Automatically calls the proper function next
+			updateAnimations();
 		}
 		else if(cmd == GENERIC_CMD_SET_BONE_POSROT)
 		{
@@ -1571,16 +1639,16 @@ public:
 			v3f rotation = readV3F1000(is);
 			m_bone_posrot[bone] = core::vector2d<v3f>(position, rotation);
 
-			expireVisuals(); // Automatically calls the proper function next
+			updateBonePosRot();
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
-			m_attachment_parent_id = readS16(is);
+			attachment_list.push_back(core::vector2d<int>(this->getId(), readS16(is)));
 			m_attachment_bone = deSerializeString(is);
 			m_attachment_position = readV3F1000(is);
 			m_attachment_rotation = readV3F1000(is);
 
-			expireVisuals(); // Automatically calls the proper function next
+			updateAttachments();
 		}
 		else if(cmd == GENERIC_CMD_PUNCHED)
 		{
