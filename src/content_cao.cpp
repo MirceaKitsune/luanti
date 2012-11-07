@@ -770,6 +770,19 @@ public:
 	{
 		// bool permanent should be true when removing the object permanently and false when it's only refreshed (and comes back in a few frames)
 
+		// If this object is being permanently removed, delete it from the attachments list
+		if(permanent)
+		{
+			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			{
+				if(ii->X == this->getId()) // This is the ID of our object
+				{
+					attachment_list.erase(ii);
+					break;
+				}
+			}
+		}
+
 		// If this object is being removed, either permanently or just to refresh it, then all
 		// objects attached to it must be unparented else Irrlicht causes a segmentation fault.
 		for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
@@ -1643,6 +1656,15 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
+			// If an entry already exists for this object, delete it first to avoid duplicates
+			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			{
+				if(ii->X == this->getId()) // This is the ID of our object
+				{
+					attachment_list.erase(ii);
+					break;
+				}
+			}
 			attachment_list.push_back(core::vector2d<int>(this->getId(), readS16(is)));
 			m_attachment_bone = deSerializeString(is);
 			m_attachment_position = readV3F1000(is);
