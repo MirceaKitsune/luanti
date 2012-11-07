@@ -836,18 +836,6 @@ public:
 		m_smgr = smgr;
 		m_irr = irr;
 
-		// If this object has attachments and is being re-added after having been refreshed, parent its children back.
-		// The parent ID for this child hasn't been changed in attachment_list, so just update its attachments.
-		for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
-		{
-			if(ii->Y == this->getId()) // This is a child of our parent
-			{
-				ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
-				if(obj)
-					obj->updateParent();
-			}
-		}
-
 		if(m_meshnode != NULL || m_animated_meshnode != NULL || m_spritenode != NULL)
 			return;
 		
@@ -1007,6 +995,18 @@ public:
 		}
 		
 		updateNodePos();
+
+		// If this object has attachments and is being re-added after having been refreshed, parent its children back.
+		// The parent ID for this child hasn't been changed in attachment_list, so just update its attachments.
+		for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+		{
+			if(ii->Y == this->getId()) // This is a child of our parent
+			{
+				ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
+				if(obj)
+					obj->updateParent();
+			}
+		}
 	}
 
 	void expireVisuals()
