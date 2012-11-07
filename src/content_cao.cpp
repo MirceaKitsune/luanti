@@ -770,18 +770,24 @@ public:
 	{
 		if(permanent) // Should be true when removing the object permanently and false when refreshing (eg: updating visuals)
 		{
+			// Detach this object's children
 			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
 			{
-				// Delete this object from the attachments list
-				if(ii->X == this->getId()) // Is our object
-					attachment_list.erase(ii);
-				// Detach this object's children
-				else if(ii->Y == this->getId()) // Is a child of our object
+				if(ii->Y == this->getId()) // Is a child of our object
 				{
 					ii->Y = 0;
 					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
 					if(obj)
 						obj->updateParent();
+				}
+			}
+			// Delete this object from the attachments list
+			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			{
+				if(ii->X == this->getId()) // Is our object
+				{
+					attachment_list.erase(ii);
+					break;
 				}
 			}
 		}
