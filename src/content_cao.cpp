@@ -1393,37 +1393,6 @@ public:
 	
 	void updateAttachments()
 	{
-		// REMAINING ATTACHMENT ISSUES:
-		// We get to this function when the object is an attachment that needs to
-		// be attached to its parent. If a bone is set we attach it to that skeletal
-		// bone, otherwise just to the object's origin. Attachments should not copy parent
-		// position as that's laggy... instead the Irrlicht function(s) to attach should
-		// be used. If the parent object is NULL that means this object should be detached.
-		// This function is only called whenever a GENERIC_CMD_SET_ATTACHMENT message is received.
-		
-		// We already attach our entity on the server too (copy position). Reason we attach
-		// to the client as well is first of all lag. The server sends the position
-		// of the child separately than that of the parent, so even on localhost
-		// you'd see the child lagging behind. Models are also client-side, so this is
-		// needed to read bone data and attach to joints.
-		
-		// Functions:
-		// - m_attachment_parent is ClientActiveObject* for the parent entity.
-		// - m_attachment_bone is std::string of the bone, "" means none.
-		// - m_attachment_position is v3f and represents the position offset of the attachment.
-		// - m_attachment_rotation is v3f and represents the rotation offset of the attachment.
-		
-		// Implementation information:
-		// From what I know, we need to get the AnimatedMeshSceneNode of m_attachment_parent then
-		// use parent_node->addChild(m_animated_meshnode) for position attachment. For skeletal
-		// attachment I don't know yet. Same must be used to detach when a NULL parent is received.
-
-		//Useful links:
-		// http://irrlicht.sourceforge.net/forum/viewtopic.php?t=7514
-		// http://www.irrlicht3d.org/wiki/index.php?n=Main.HowToUseTheNewAnimationSystem
-		// http://gamedev.stackexchange.com/questions/27363/finding-the-endpoint-of-a-named-bone-in-irrlicht
-		// Irrlicht documentation: http://irrlicht.sourceforge.net/docu/
-
 		if(getParent() == NULL || getParent()->isLocalPlayer()) // Detach
 		{
 			if(m_meshnode)
@@ -1456,11 +1425,6 @@ public:
 		}
 		else // Attach
 		{
-			// REMAINING ATTACHMENT ISSUES:
-			// The code below should cause the child to get attached, but for some reason it's not working
-			// A debug print confirms both position and absolute position are set accordingly, but the object still doesn't show
-			// Position and Absolute Position were tested to be set properly here
-
 			scene::IMeshSceneNode *parent_mesh = NULL;
 			if(getParent()->getMeshSceneNode())
 				parent_mesh = getParent()->getMeshSceneNode();
@@ -1475,6 +1439,7 @@ public:
 			if(parent_animated_mesh && m_attachment_bone != "")
 				parent_bone = parent_animated_mesh->getJointNode(m_attachment_bone.c_str());
 
+			// The spaghetti code below makes sure attaching works if either the parent or child is a spritenode, meshnode, or animatedmeshnode
 			// TODO: Perhaps use polymorphism here to save code duplication
 			if(m_meshnode){
 				if(parent_bone){
