@@ -768,50 +768,20 @@ public:
 
 	void removeFromScene(bool permanent)
 	{
-		// bool permanent should be true when removing the object permanently and false when it's only refreshed (and comes back in a few frames)
-
-		// If this object is being permanently removed, delete it from the attachments list
-		if(permanent)
+		if(permanent) // Should be true when removing the object permanently and false when refreshing (eg: updating visuals)
 		{
 			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
 			{
-				if(ii->X == this->getId()) // This is the ID of our object
-				{
+				// Delete this object from the attachments list
+				if(ii->X == this->getId()) // Is our object
 					attachment_list.erase(ii);
-					break;
-				}
-			}
-		}
-
-		// If this object is being removed, either permanently or just to refresh it, then all
-		// objects attached to it must be unparented else Irrlicht causes a segmentation fault.
-		for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
-		{
-			if(ii->Y == this->getId()) // This is a child of our parent
-			{
-				ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
-				if(obj)
+				// Detach this object's children
+				else if(ii->Y == this->getId()) // Is a child of our object
 				{
-					if(permanent)
-					{
-						// The parent is being permanently removed, so the child stays detached
-						ii->Y = 0;
+					ii->Y = 0;
+					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
+					if(obj)
 						obj->updateParent();
-					}
-					else
-					{
-						// The parent is being refreshed, detach our child enough to avoid bad memory reads
-						// This only stays into effect for a few frames, as addToScene will parent its children back
-						scene::IMeshSceneNode *m_child_meshnode = obj->getMeshSceneNode();
-						scene::IAnimatedMeshSceneNode *m_child_animated_meshnode = obj->getAnimatedMeshSceneNode();
-						scene::IBillboardSceneNode *m_child_spritenode = obj->getSpriteSceneNode();
-						if(m_child_meshnode)
-							m_child_meshnode->setParent(m_smgr->getRootSceneNode());
-						if(m_child_animated_meshnode)
-							m_child_animated_meshnode->setParent(m_smgr->getRootSceneNode());
-						if(m_child_spritenode)
-							m_child_spritenode->setParent(m_smgr->getRootSceneNode());
-					}
 				}
 			}
 		}
@@ -995,18 +965,6 @@ public:
 		}
 		
 		updateNodePos();
-
-		// If this object has attachments and is being re-added after having been refreshed, parent its children back.
-		// The parent ID for this child hasn't been changed in attachment_list, so just update its attachments.
-		for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
-		{
-			if(ii->Y == this->getId()) // This is a child of our parent
-			{
-				ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
-				if(obj)
-					obj->updateParent();
-			}
-		}
 	}
 
 	void expireVisuals()
@@ -1074,12 +1032,44 @@ public:
 
 		if(m_visuals_expired && m_smgr && m_irr){
 			m_visuals_expired = false;
+
+			// Attachments, part 1: All attached objects must be unparented first, or Irrlicht causes a segmentation fault
+			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			{
+				if(ii->Y == this->getId()) // This is a child of our parent
+				{
+					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
+					if(obj)
+					{
+						scene::IMeshSceneNode *m_child_meshnode = obj->getMeshSceneNode();
+						scene::IAnimatedMeshSceneNode *m_child_animated_meshnode = obj->getAnimatedMeshSceneNode();
+						scene::IBillboardSceneNode *m_child_spritenode = obj->getSpriteSceneNode();
+						if(m_child_meshnode)
+							m_child_meshnode->setParent(m_smgr->getRootSceneNode());
+						if(m_child_animated_meshnode)
+							m_child_animated_meshnode->setParent(m_smgr->getRootSceneNode());
+						if(m_child_spritenode)
+							m_child_spritenode->setParent(m_smgr->getRootSceneNode());
+					}
+				}
+			}
+
 			removeFromScene(false);
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
 			updateAnimations();
 			updateBonePosRot();
 			updateAttachments();
-			return;
+
+			// Attachments, part 2: Now that the parent has been refreshed, put its attachments back
+			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			{
+				if(ii->Y == this->getId()) // This is a child of our parent
+				{
+					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
+					if(obj)
+						obj->updateParent();
+				}
+			}
 		}
 
 		if(getParent() != NULL) // Attachments should be glued to their parent by Irrlicht
