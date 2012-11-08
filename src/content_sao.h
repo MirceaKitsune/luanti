@@ -108,8 +108,7 @@ private:
 
 	std::map<std::string, core::vector2d<v3f> > m_animation_bone;
 	bool m_animations_bone_sent;
-	
-	ServerActiveObject *m_parent;
+
 	int m_attachment_parent_id;
 	std::string m_attachment_bone;
 	v3f m_attachment_position;
@@ -268,8 +267,7 @@ private:
 
 	std::map<std::string, core::vector2d<v3f> > m_animation_bone; // stores position and rotation for each bone name
 	bool m_animations_bone_sent;
-	
-	ServerActiveObject *m_parent;
+
 	int m_attachment_parent_id;
 	std::string m_attachment_bone;
 	v3f m_attachment_position;
