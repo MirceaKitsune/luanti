@@ -776,9 +776,6 @@ public:
 				if(ii->Y == this->getId()) // Is a child of our object
 				{
 					ii->Y = 0;
-					m_attachment_bone = "";
-					m_attachment_position = v3f(0,0,0);
-					m_attachment_rotation = v3f(0,0,0);
 					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
 					if(obj)
 						obj->updateParent();
