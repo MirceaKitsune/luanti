@@ -46,6 +46,7 @@ public:
 	virtual void addedToEnvironment(u32 dtime_s);
 	static ServerActiveObject* create(ServerEnvironment *env, v3f pos,
 			const std::string &data);
+	bool isAttached();
 	void step(float dtime, bool send_recommended);
 	std::string getClientInitializationData();
 	std::string getStaticData();
@@ -142,6 +143,7 @@ public:
 	bool unlimitedTransferDistance() const;
 	std::string getClientInitializationData();
 	std::string getStaticData();
+	bool isAttached();
 	void step(float dtime, bool send_recommended);
 	void setBasePosition(const v3f &position);
 	void setPos(v3f pos);
