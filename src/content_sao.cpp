@@ -740,7 +740,7 @@ void LuaEntitySAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 	m_animations_bone_sent = false;
 }
 
-void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
+void LuaEntitySAO::setAttachment(int parent_id, std::string bone, v3f position, v3f rotation)
 {
 	// Attachments need to be handled on both the server and client.
 	// If we just attach on the server, we can only copy the position of the parent. Attachments
@@ -750,7 +750,7 @@ void LuaEntitySAO::setAttachment(ServerActiveObject *parent, std::string bone, v
 	// This breaks some things so we also give the server the most accurate representation
 	// even if players only see the client changes.
 
-	m_attachment_parent_id = parent->getId();
+	m_attachment_parent_id = parent_id;
 	m_attachment_bone = bone;
 	m_attachment_position = position;
 	m_attachment_rotation = rotation;
@@ -1299,7 +1299,7 @@ void PlayerSAO::setBonePosRot(std::string bone, v3f position, v3f rotation)
 	m_animations_bone_sent = false;
 }
 
-void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f position, v3f rotation)
+void PlayerSAO::setAttachment(int parent_id, std::string bone, v3f position, v3f rotation)
 {
 	// Attachments need to be handled on both the server and client.
 	// If we just attach on the server, we can only copy the position of the parent. Attachments
@@ -1309,7 +1309,7 @@ void PlayerSAO::setAttachment(ServerActiveObject *parent, std::string bone, v3f 
 	// This breaks some things so we also give the server the most accurate representation
 	// even if players only see the client changes.
 
-	m_attachment_parent_id = parent->getId();
+	m_attachment_parent_id = parent_id;
 	m_attachment_bone = bone;
 	m_attachment_position = position;
 	m_attachment_rotation = rotation;
