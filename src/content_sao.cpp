@@ -446,6 +446,14 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	}
 
 	m_last_sent_position_timer += dtime;
+
+	// If attached, check that our parent is still there. If it isn't, detach.
+	if(m_parent != NULL)
+	{
+		ServerActiveObject *obj = m_env->getActiveObject(m_parent->getId());
+		if(!obj)
+			m_parent = NULL;
+	}
 	
 	// Each frame, parent position is copied if the object is attached, otherwise it's calculated normally
 	// If the object gets detached this comes into effect automatically from the last known origin
