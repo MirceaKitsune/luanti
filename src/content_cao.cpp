@@ -1553,7 +1553,8 @@ public:
 		}
 		else if(cmd == GENERIC_CMD_UPDATE_POSITION)
 		{
-			// Not sent by the server if the object is an attachment
+			// Not sent by the server if this object is an attachment.
+			// We might however get here if the server notices the object being detached before the client.
 			m_position = readV3F1000(is);
 			m_velocity = readV3F1000(is);
 			m_acceleration = readV3F1000(is);
@@ -1563,14 +1564,14 @@ public:
 			bool is_end_position = readU8(is);
 			float update_interval = readF1000(is);
 
-			if(getParent() != NULL) // Just in case
-				return;
-
 			// Place us a bit higher if we're physical, to not sink into
 			// the ground due to sucky collision detection...
 			if(m_prop.physical)
 				m_position += v3f(0,0.002,0);
-				
+
+			if(getParent() != NULL) // Just in case
+				return;
+
 			if(do_interpolate){
 				if(!m_prop.physical)
 					pos_translator.update(m_position, is_end_position, update_interval);

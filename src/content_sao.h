@@ -276,7 +276,7 @@ private:
 
 public:
 	// Some flags used by Server
-	bool m_teleported;
+	bool m_moved;
 	bool m_inventory_not_sent;
 	bool m_hp_not_sent;
 	bool m_wielded_item_not_sent;

@@ -461,6 +461,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 		m_attachment_bone = "";
 		m_attachment_position = v3f(0,0,0);
 		m_attachment_rotation = v3f(0,0,0);
+		sendPosition(false, true);
 	}
 
 	m_last_sent_position_timer += dtime;
@@ -509,7 +510,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	if(send_recommended == false)
 		return;
 
-	if(isAttached())
+	if(!isAttached())
 	{
 		// TODO: force send when acceleration changes enough?
 		float minchange = 0.2*BS;
@@ -886,7 +887,7 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, Player *player_, u16 peer_id_,
 	m_animations_bone_sent(false),
 	m_attachment_sent(false),
 	// public
-	m_teleported(false),
+	m_moved(false),
 	m_inventory_not_sent(false),
 	m_hp_not_sent(false),
 	m_wielded_item_not_sent(false)
@@ -1021,6 +1022,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 		m_attachment_bone = "";
 		m_attachment_position = v3f(0,0,0);
 		m_attachment_rotation = v3f(0,0,0);
+		m_player->setPosition(m_last_good_position);
+		m_moved = true;
 	}
 
 	m_time_from_last_punch += dtime;
@@ -1086,7 +1089,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 							<<" moved too fast; resetting position"
 							<<std::endl;
 					m_player->setPosition(m_last_good_position);
-					m_teleported = true;
+					m_moved = true;
 				}
 				m_last_good_position_age = 0;
 			}
@@ -1178,7 +1181,7 @@ void PlayerSAO::setPos(v3f pos)
 	m_last_good_position = pos;
 	m_last_good_position_age = 0;
 	// Force position change on client
-	m_teleported = true;
+	m_moved = true;
 }
 
 void PlayerSAO::moveTo(v3f pos, bool continuous)
@@ -1190,7 +1193,7 @@ void PlayerSAO::moveTo(v3f pos, bool continuous)
 	m_last_good_position = pos;
 	m_last_good_position_age = 0;
 	// Force position change on client
-	m_teleported = true;
+	m_moved = true;
 }
 
 int PlayerSAO::punch(v3f dir,
