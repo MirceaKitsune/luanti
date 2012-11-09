@@ -65,7 +65,6 @@ void LocalPlayer::move(f32 dtime, Map &map, f32 pos_max_d,
 	if(isAttached)
 	{
 		setPosition(overridePosition);
-		m_speed.Y = 0;
 		return;
 	}
 
@@ -362,7 +361,14 @@ void LocalPlayer::applyControl(float dtime)
 	
 	setPitch(control.pitch);
 	setYaw(control.yaw);
-	
+
+	// Nullify speed and don't run positioning code if the player is attached
+	if(isAttached)
+	{
+		setSpeed(v3f(0,0,0));
+		return;
+	}
+
 	v3f move_direction = v3f(0,0,1);
 	move_direction.rotateXZBy(getYaw());
 	
