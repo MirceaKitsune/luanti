@@ -625,7 +625,7 @@ public:
 		m_frames(v2f(0,0)),
 		m_frame_speed(15),
 		m_frame_blend(0),
-		// Nothing to do for m_bone_posrot
+		m_bone_posrot(std::map<std::string, core::vector2d<v3f> >()),
 		m_attachment_bone(""),
 		m_attachment_position(v3f(0,0,0)),
 		m_attachment_rotation(v3f(0,0,0)),
