@@ -1037,7 +1037,6 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 		m_last_good_position = pos;
 		m_last_good_position_age = 0;
 		m_player->setPosition(pos);
-		m_moved = true; // Player position must be updated from the server for attached players
 	}
 	else
 	{

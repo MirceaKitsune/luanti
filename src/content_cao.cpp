@@ -1078,6 +1078,7 @@ public:
 			}
 		}
 
+		LocalPlayer *player = m_env->getLocalPlayer();
 		if(getParent() != NULL) // Attachments should be glued to their parent by Irrlicht
 		{
 			// Set these for later
@@ -1089,6 +1090,9 @@ public:
 				m_position = m_spritenode->getAbsolutePosition();
 			m_velocity = v3f(0,0,0);
 			m_acceleration = v3f(0,0,0);
+
+			if(m_is_local_player) // Update local player attachment position
+				player->overridePosition = getParent()->getPosition();
 		}
 		else
 		{
@@ -1389,6 +1393,7 @@ public:
 	
 	void updateAttachments()
 	{
+		LocalPlayer *player = m_env->getLocalPlayer();
 		if(getParent() == NULL || getParent()->isLocalPlayer()) // Detach
 		{
 			if(m_meshnode)
@@ -1418,6 +1423,7 @@ public:
 				m_spritenode->setRotation(old_rotation);
 				m_spritenode->updateAbsolutePosition();
 			}
+			player->isAttached = false;
 		}
 		else // Attach
 		{
@@ -1524,6 +1530,8 @@ public:
 					}
 				}
 			}
+			player->isAttached = true;
+			player->overridePosition = m_attachment_position;
 		}
 	}
 
