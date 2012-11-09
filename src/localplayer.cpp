@@ -34,6 +34,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 LocalPlayer::LocalPlayer(IGameDef *gamedef):
 	Player(gamedef),
+	isAttached(false),
+	overridePosition(v3f(0,0,0)),
 	m_sneak_node(32767,32767,32767),
 	m_sneak_node_exists(false),
 	m_old_node_below(32767,32767,32767),
@@ -53,18 +55,19 @@ LocalPlayer::~LocalPlayer()
 void LocalPlayer::move(f32 dtime, Map &map, f32 pos_max_d,
 		core::list<CollisionInfo> *collision_info)
 {
-	// Copy parent position if local player is attached
-	if(isAttached)
-	{
-		setPosition(overridePosition);
-		return;
-	}
-
 	INodeDefManager *nodemgr = m_gamedef->ndef();
 
 	v3f position = getPosition();
 
 	v3f old_speed = m_speed;
+
+	// Copy parent position if local player is attached
+	if(isAttached)
+	{
+		setPosition(overridePosition);
+		m_speed.Y = 0;
+		return;
+	}
 
 	// Skip collision detection if a special movement mode is used
 	bool fly_allowed = m_gamedef->checkLocalPrivilege("fly");
