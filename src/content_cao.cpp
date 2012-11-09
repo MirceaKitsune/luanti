@@ -40,6 +40,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/serialize.h"
 #include "util/mathconstants.h"
 #include "map.h"
+#include "main.h" // g_settings
 #include <IMeshManipulator.h>
 #include <IAnimatedMeshSceneNode.h>
 #include <IBoneSceneNode.h>
@@ -1218,6 +1219,10 @@ public:
 	{
 		ITextureSource *tsrc = m_gamedef->tsrc();
 
+		bool use_trilinear_filter = g_settings->getBool("trilinear_filter");
+		bool use_bilinear_filter = g_settings->getBool("bilinear_filter");
+		bool use_anisotropic_filter = g_settings->getBool("anisotropic_filter");
+
 		if(m_spritenode)
 		{
 			if(m_prop.visual == "sprite")
@@ -1234,10 +1239,14 @@ public:
 				// has directional lighting, it should work automatically.
 				if(m_prop.colors.size() >= 1)
 				{
-					m_meshnode->getMaterial(0).AmbientColor = m_prop.colors[0];
-					m_meshnode->getMaterial(0).DiffuseColor = m_prop.colors[0];
-					m_meshnode->getMaterial(0).SpecularColor = m_prop.colors[0];
+					m_spritenode->getMaterial(0).AmbientColor = m_prop.colors[0];
+					m_spritenode->getMaterial(0).DiffuseColor = m_prop.colors[0];
+					m_spritenode->getMaterial(0).SpecularColor = m_prop.colors[0];
 				}
+
+				m_spritenode->getMaterial(0).setFlag(video::EMF_TRILINEAR_FILTER, use_trilinear_filter);
+				m_spritenode->getMaterial(0).setFlag(video::EMF_BILINEAR_FILTER, use_bilinear_filter);
+				m_spritenode->getMaterial(0).setFlag(video::EMF_ANISOTROPIC_FILTER, use_anisotropic_filter);
 			}
 		}
 		if(m_animated_meshnode)
@@ -1262,6 +1271,10 @@ public:
 					video::SMaterial& material = m_animated_meshnode->getMaterial(i);
 					material.setFlag(video::EMF_LIGHTING, false);
 					material.setFlag(video::EMF_BILINEAR_FILTER, false);
+
+					m_animated_meshnode->getMaterial(i).setFlag(video::EMF_TRILINEAR_FILTER, use_trilinear_filter);
+					m_animated_meshnode->getMaterial(i).setFlag(video::EMF_BILINEAR_FILTER, use_bilinear_filter);
+					m_animated_meshnode->getMaterial(i).setFlag(video::EMF_ANISOTROPIC_FILTER, use_anisotropic_filter);
 				}
 				for (u32 i = 0; i < m_prop.colors.size(); ++i)
 				{
@@ -1308,6 +1321,10 @@ public:
 						m_meshnode->getMaterial(i).DiffuseColor = m_prop.colors[i];
 						m_meshnode->getMaterial(i).SpecularColor = m_prop.colors[i];
 					}
+
+					m_meshnode->getMaterial(i).setFlag(video::EMF_TRILINEAR_FILTER, use_trilinear_filter);
+					m_meshnode->getMaterial(i).setFlag(video::EMF_BILINEAR_FILTER, use_bilinear_filter);
+					m_meshnode->getMaterial(i).setFlag(video::EMF_ANISOTROPIC_FILTER, use_anisotropic_filter);
 				}
 			}
 			else if(m_prop.visual == "upright_sprite")
@@ -1331,6 +1348,10 @@ public:
 						buf->getMaterial().DiffuseColor = m_prop.colors[0];
 						buf->getMaterial().SpecularColor = m_prop.colors[0];
 					}
+
+					buf->getMaterial().setFlag(video::EMF_TRILINEAR_FILTER, use_trilinear_filter);
+					buf->getMaterial().setFlag(video::EMF_BILINEAR_FILTER, use_bilinear_filter);
+					buf->getMaterial().setFlag(video::EMF_ANISOTROPIC_FILTER, use_anisotropic_filter);
 				}
 				{
 					std::string tname = "unknown_object.png";
@@ -1358,6 +1379,10 @@ public:
 						buf->getMaterial().DiffuseColor = m_prop.colors[0];
 						buf->getMaterial().SpecularColor = m_prop.colors[0];
 					}
+
+					buf->getMaterial().setFlag(video::EMF_TRILINEAR_FILTER, use_trilinear_filter);
+					buf->getMaterial().setFlag(video::EMF_BILINEAR_FILTER, use_bilinear_filter);
+					buf->getMaterial().setFlag(video::EMF_ANISOTROPIC_FILTER, use_anisotropic_filter);
 				}
 			}
 		}
