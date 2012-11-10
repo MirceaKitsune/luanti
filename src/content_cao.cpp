@@ -1087,7 +1087,7 @@ public:
 				m_position = m_spritenode->getAbsolutePosition();
 			m_velocity = v3f(0,0,0);
 			m_acceleration = v3f(0,0,0);
-			pos_translator.update(m_position, true, dtime);
+			pos_translator.vect_show = m_position;
 
 			if(m_is_local_player) // Update local player attachment position
 			{
