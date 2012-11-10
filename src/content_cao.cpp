@@ -1035,8 +1035,6 @@ public:
 
 	void step(float dtime, ClientEnvironment *env)
 	{
-		v3f lastpos = pos_translator.vect_show;
-
 		if(m_visuals_expired && m_smgr && m_irr){
 			m_visuals_expired = false;
 
@@ -1089,6 +1087,7 @@ public:
 				m_position = m_spritenode->getAbsolutePosition();
 			m_velocity = v3f(0,0,0);
 			m_acceleration = v3f(0,0,0);
+			pos_translator.update(m_position, true, dtime);
 
 			if(m_is_local_player) // Update local player attachment position
 			{
@@ -1098,6 +1097,8 @@ public:
 		}
 		else
 		{
+			v3f lastpos = pos_translator.vect_show;
+
 			if(m_prop.physical){
 				core::aabbox3d<f32> box = m_prop.collisionbox;
 				box.MinEdge *= BS;
