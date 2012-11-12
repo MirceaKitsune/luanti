@@ -707,7 +707,7 @@ public:
 				return m_animated_meshnode->getAbsolutePosition();
 			if(m_spritenode)
 				return m_spritenode->getAbsolutePosition();
-			return v3f(0,0,0); // Just in case
+			return m_position;
 		}
 		return pos_translator.vect_show;
 	}
@@ -753,7 +753,7 @@ public:
 		ClientActiveObject *obj = NULL;
 		for(std::vector<core::vector2d<int> >::const_iterator cii = m_env->attachment_list.begin(); cii != m_env->attachment_list.end(); cii++)
 		{
-			if(cii->X == this->getId()){ // This ID is our child
+			if(cii->X == getId()){ // This ID is our child
 				if(cii->Y > 0){ // A parent ID exists for our child
 					if(cii->X != cii->Y){ // The parent and child ID are not the same
 						obj = m_env->getActiveObject(cii->Y);
@@ -774,7 +774,7 @@ public:
 			// Detach this object's children
 			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
-				if(ii->Y == this->getId()) // Is a child of our object
+				if(ii->Y == getId()) // Is a child of our object
 				{
 					ii->Y = 0;
 					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
@@ -785,7 +785,7 @@ public:
 			// Delete this object from the attachments list
 			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
-				if(ii->X == this->getId()) // Is our object
+				if(ii->X == getId()) // Is our object
 				{
 					m_env->attachment_list.erase(ii);
 					break;
@@ -1029,7 +1029,7 @@ public:
 			// Attachments, part 1: All attached objects must be unparented first, or Irrlicht causes a segmentation fault
 			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
-				if(ii->Y == this->getId()) // This is a child of our parent
+				if(ii->Y == getId()) // This is a child of our parent
 				{
 					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
 					if(obj)
@@ -1056,7 +1056,7 @@ public:
 			// Attachments, part 2: Now that the parent has been refreshed, put its attachments back
 			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
-				if(ii->Y == this->getId()) // This is a child of our parent
+				if(ii->Y == getId()) // This is a child of our parent
 				{
 					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
 					if(obj)
@@ -1078,12 +1078,7 @@ public:
 		if(getParent() != NULL) // Attachments should be glued to their parent by Irrlicht
 		{
 			// Set these for later
-			if(m_meshnode)
-				m_position = m_meshnode->getAbsolutePosition();
-			if(m_animated_meshnode)
-				m_position = m_animated_meshnode->getAbsolutePosition();
-			if(m_spritenode)
-				m_position = m_spritenode->getAbsolutePosition();
+			m_position = getPosition();
 			m_velocity = v3f(0,0,0);
 			m_acceleration = v3f(0,0,0);
 			pos_translator.vect_show = m_position;
@@ -1664,13 +1659,13 @@ public:
 			// If an entry already exists for this object, delete it first to avoid duplicates
 			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
-				if(ii->X == this->getId()) // This is the ID of our object
+				if(ii->X == getId()) // This is the ID of our object
 				{
 					m_env->attachment_list.erase(ii);
 					break;
 				}
 			}
-			m_env->attachment_list.push_back(core::vector2d<int>(this->getId(), readS16(is)));
+			m_env->attachment_list.push_back(core::vector2d<int>(getId(), readS16(is)));
 			m_attachment_bone = deSerializeString(is);
 			m_attachment_position = readV3F1000(is);
 			m_attachment_rotation = readV3F1000(is);
