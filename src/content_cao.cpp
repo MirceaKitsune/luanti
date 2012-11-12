@@ -587,6 +587,7 @@ private:
 	std::string m_attachment_bone;
 	v3f m_attachment_position;
 	v3f m_attachment_rotation;
+	bool m_attached_to_local;
 	int m_anim_frame;
 	int m_anim_num_frames;
 	float m_anim_framelength;
@@ -629,6 +630,7 @@ public:
 		m_attachment_bone(""),
 		m_attachment_position(v3f(0,0,0)),
 		m_attachment_rotation(v3f(0,0,0)),
+		m_attached_to_local(false),
 		m_anim_frame(0),
 		m_anim_num_frames(1),
 		m_anim_framelength(0.2),
@@ -892,7 +894,7 @@ public:
 			mesh->addMeshBuffer(buf);
 			buf->drop();
 			}
-			m_meshnode = smgr->addMeshSceneNode(mesh, m_smgr->getRootSceneNode());
+			m_meshnode = smgr->addMeshSceneNode(mesh, NULL);
 			mesh->drop();
 			// Set it to use the materials of the meshbuffers directly.
 			// This is needed for changing the texture in the future
@@ -901,7 +903,7 @@ public:
 		else if(m_prop.visual == "cube"){
 			infostream<<"GenericCAO::addToScene(): cube"<<std::endl;
 			scene::IMesh *mesh = createCubeMesh(v3f(BS,BS,BS));
-			m_meshnode = smgr->addMeshSceneNode(mesh, m_smgr->getRootSceneNode());
+			m_meshnode = smgr->addMeshSceneNode(mesh, NULL);
 			mesh->drop();
 			
 			m_meshnode->setScale(v3f(m_prop.visual_size.X,
@@ -915,7 +917,7 @@ public:
 			scene::IAnimatedMesh *mesh = smgr->getMesh(m_prop.mesh.c_str());
 			if(mesh)
 			{
-				m_animated_meshnode = smgr->addAnimatedMeshSceneNode(mesh, m_smgr->getRootSceneNode());
+				m_animated_meshnode = smgr->addAnimatedMeshSceneNode(mesh, NULL);
 				m_animated_meshnode->animateJoints(); // Needed for some animations
 				m_animated_meshnode->setScale(v3f(m_prop.visual_size.X,
 						m_prop.visual_size.Y,
@@ -940,7 +942,7 @@ public:
 						irr->getVideoDriver()->getMeshManipulator();
 				scene::IMesh *mesh = manip->createMeshUniquePrimitives(item_mesh);
 
-				m_meshnode = smgr->addMeshSceneNode(mesh, m_smgr->getRootSceneNode());
+				m_meshnode = smgr->addMeshSceneNode(mesh, NULL);
 				mesh->drop();
 				
 				m_meshnode->setScale(v3f(m_prop.visual_size.X/2,
@@ -982,7 +984,7 @@ public:
 	void updateLight(u8 light_at_pos)
 	{
 		// Objects attached to the local player should always be hidden
-		if(getParent() != NULL && getParent()->isLocalPlayer())
+		if(m_attached_to_local)
 			m_is_visible = false;
 		else
 			m_is_visible = (m_hp != 0);
@@ -1002,6 +1004,9 @@ public:
 			if(m_spritenode){
 				m_spritenode->setColor(color);
 				m_spritenode->setVisible(m_is_visible);
+			}
+			if(m_textnode){
+				m_textnode->setVisible(m_is_visible);
 			}
 		}
 	}
@@ -1076,6 +1081,17 @@ public:
 				}
 			}
 		}
+
+		// Make sure m_is_visible is always applied
+		if(m_meshnode)
+			m_meshnode->setVisible(m_is_visible);
+		if(m_animated_meshnode)
+			m_animated_meshnode->setVisible(m_is_visible);
+		if(m_spritenode)
+			m_spritenode->setVisible(m_is_visible);
+		if(m_textnode)
+			m_textnode->setVisible(m_is_visible);
+
 		if(getParent() != NULL) // Attachments should be glued to their parent by Irrlicht
 		{
 			// Set these for later
@@ -1420,7 +1436,9 @@ public:
 	
 	void updateAttachments()
 	{
-		if(getParent() == NULL || getParent()->isLocalPlayer()) // Detach
+		m_attached_to_local = getParent() != NULL && getParent()->isLocalPlayer();
+
+		if(getParent() == NULL || m_attached_to_local) // Detach or don't attach
 		{
 			if(m_meshnode)
 			{
