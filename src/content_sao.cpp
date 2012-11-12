@@ -914,7 +914,7 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, Player *player_, u16 peer_id_,
 	m_prop.colors.push_back(video::SColor(255, 255, 255, 255));
 	m_prop.spritediv = v2s16(1,1);
 	// end of default appearance
-	m_prop.is_visible = (getHP() != 0); // TODO: Use a death animation instead for mesh players
+	m_prop.is_visible = true;
 	m_prop.makes_footstep_sound = true;
 }
 
@@ -1381,7 +1381,7 @@ void PlayerSAO::disconnected()
 
 std::string PlayerSAO::getPropertyPacket()
 {
-	m_prop.is_visible = (getHP() != 0);
+	m_prop.is_visible = (true);
 	return gob_cmd_set_properties(m_prop);
 }
 

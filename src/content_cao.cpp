@@ -983,31 +983,16 @@ public:
 		
 	void updateLight(u8 light_at_pos)
 	{
-		// Objects attached to the local player should always be hidden
-		if(m_attached_to_local)
-			m_is_visible = false;
-		else
-			m_is_visible = (m_hp != 0);
 		u8 li = decode_light(light_at_pos);
-
 		if(li != m_last_light){
 			m_last_light = li;
 			video::SColor color(255,li,li,li);
-			if(m_meshnode){
+			if(m_meshnode)
 				setMeshColor(m_meshnode->getMesh(), color);
-				m_meshnode->setVisible(m_is_visible);
-			}
-			if(m_animated_meshnode){
+			if(m_animated_meshnode)
 				setMeshColor(m_animated_meshnode->getMesh(), color);
-				m_animated_meshnode->setVisible(m_is_visible);
-			}
-			if(m_spritenode){
+			if(m_spritenode)
 				m_spritenode->setColor(color);
-				m_spritenode->setVisible(m_is_visible);
-			}
-			if(m_textnode){
-				m_textnode->setVisible(m_is_visible);
-			}
 		}
 	}
 
@@ -1437,6 +1422,7 @@ public:
 	void updateAttachments()
 	{
 		m_attached_to_local = getParent() != NULL && getParent()->isLocalPlayer();
+		m_is_visible = !m_attached_to_local; // Objects attached to the local player should always be hidden
 
 		if(getParent() == NULL || m_attached_to_local) // Detach or don't attach
 		{
