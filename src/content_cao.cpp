@@ -52,8 +52,6 @@ struct ToolCapabilities;
 
 core::map<u16, ClientActiveObject::Factory> ClientActiveObject::m_types;
 
-std::vector<core::vector2d<int> > attachment_list; // X is child ID, Y is parent ID
-
 /*
 	SmoothTranslator
 */
@@ -753,7 +751,7 @@ public:
 	ClientActiveObject *getParent()
 	{
 		ClientActiveObject *obj = NULL;
-		for(std::vector<core::vector2d<int> >::const_iterator cii = attachment_list.begin(); cii != attachment_list.end(); cii++)
+		for(std::vector<core::vector2d<int> >::const_iterator cii = m_env->attachment_list.begin(); cii != m_env->attachment_list.end(); cii++)
 		{
 			if(cii->X == this->getId()){ // This ID is our child
 				if(cii->Y > 0){ // A parent ID exists for our child
@@ -774,7 +772,7 @@ public:
 		if(permanent) // Should be true when removing the object permanently and false when refreshing (eg: updating visuals)
 		{
 			// Detach this object's children
-			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
 				if(ii->Y == this->getId()) // Is a child of our object
 				{
@@ -785,11 +783,11 @@ public:
 				}
 			}
 			// Delete this object from the attachments list
-			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
 				if(ii->X == this->getId()) // Is our object
 				{
-					attachment_list.erase(ii);
+					m_env->attachment_list.erase(ii);
 					break;
 				}
 			}
@@ -1029,7 +1027,7 @@ public:
 			m_visuals_expired = false;
 
 			// Attachments, part 1: All attached objects must be unparented first, or Irrlicht causes a segmentation fault
-			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
 				if(ii->Y == this->getId()) // This is a child of our parent
 				{
@@ -1056,7 +1054,7 @@ public:
 			updateAttachments();
 
 			// Attachments, part 2: Now that the parent has been refreshed, put its attachments back
-			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
 				if(ii->Y == this->getId()) // This is a child of our parent
 				{
@@ -1664,15 +1662,15 @@ public:
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
 			// If an entry already exists for this object, delete it first to avoid duplicates
-			for(std::vector<core::vector2d<int> >::iterator ii = attachment_list.begin(); ii != attachment_list.end(); ii++)
+			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
 			{
 				if(ii->X == this->getId()) // This is the ID of our object
 				{
-					attachment_list.erase(ii);
+					m_env->attachment_list.erase(ii);
 					break;
 				}
 			}
-			attachment_list.push_back(core::vector2d<int>(this->getId(), readS16(is)));
+			m_env->attachment_list.push_back(core::vector2d<int>(this->getId(), readS16(is)));
 			m_attachment_bone = deSerializeString(is);
 			m_attachment_position = readV3F1000(is);
 			m_attachment_rotation = readV3F1000(is);
