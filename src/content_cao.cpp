@@ -578,10 +578,10 @@ private:
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set;
 	bool m_tx_select_horiz_by_yawpitch;
-	v2f m_frames;
-	int m_frame_speed;
-	int m_frame_blend;
-	std::map<std::string, core::vector2d<v3f> > m_bone_posrot; // stores position and rotation for each bone name
+	v2f m_animation_range;
+	int m_animation_speed;
+	int m_animation_blend;
+	std::map<std::string, core::vector2d<v3f> > m_bone_position; // stores position and rotation for each bone name
 	std::string m_attachment_bone;
 	v3f m_attachment_position;
 	v3f m_attachment_rotation;
@@ -621,10 +621,10 @@ public:
 		m_tx_basepos(0,0),
 		m_initial_tx_basepos_set(false),
 		m_tx_select_horiz_by_yawpitch(false),
-		m_frames(v2f(0,0)),
-		m_frame_speed(15),
-		m_frame_blend(0),
-		m_bone_posrot(std::map<std::string, core::vector2d<v3f> >()),
+		m_animation_range(v2f(0,0)),
+		m_animation_speed(15),
+		m_animation_blend(0),
+		m_bone_position(std::map<std::string, core::vector2d<v3f> >()),
 		m_attachment_bone(""),
 		m_attachment_position(v3f(0,0,0)),
 		m_attachment_rotation(v3f(0,0,0)),
@@ -743,7 +743,7 @@ public:
 		return m_is_local_player;
 	}
 
-	void updateParent()
+	void setAttachments()
 	{
 		updateAttachments();
 	}
@@ -779,7 +779,7 @@ public:
 					ii->Y = 0;
 					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
 					if(obj)
-						obj->updateParent();
+						obj->setAttachments();
 				}
 			}
 			// Delete this object from the attachments list
@@ -1049,8 +1049,8 @@ public:
 
 			removeFromScene(false);
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
-			updateAnimations();
-			updateBonePosRot();
+			updateAnimation();
+			updateBonePosition();
 			updateAttachments();
 
 			// Attachments, part 2: Now that the parent has been refreshed, put its attachments back
@@ -1060,7 +1060,7 @@ public:
 				{
 					ClientActiveObject *obj = m_env->getActiveObject(ii->X); // Get the object of the child
 					if(obj)
-						obj->updateParent();
+						obj->setAttachments();
 				}
 			}
 		}
@@ -1388,23 +1388,23 @@ public:
 		}
 	}
 
-	void updateAnimations()
+	void updateAnimation()
 	{
 		if(m_animated_meshnode == NULL)
 			return;
 
-		m_animated_meshnode->setFrameLoop((int)m_frames.X, (int)m_frames.Y);
-		m_animated_meshnode->setAnimationSpeed(m_frame_speed);
-		m_animated_meshnode->setTransitionTime(m_frame_blend);
+		m_animated_meshnode->setFrameLoop((int)m_animation_range.X, (int)m_animation_range.Y);
+		m_animated_meshnode->setAnimationSpeed(m_animation_speed);
+		m_animated_meshnode->setTransitionTime(m_animation_blend);
 	}
 
-	void updateBonePosRot()
+	void updateBonePosition()
 	{
-		if(!m_bone_posrot.size() || m_animated_meshnode == NULL)
+		if(!m_bone_position.size() || m_animated_meshnode == NULL)
 			return;
 
 		m_animated_meshnode->setJointMode(irr::scene::EJUOR_CONTROL); // To write positions to the mesh on render
-		for(std::map<std::string, core::vector2d<v3f> >::const_iterator ii = m_bone_posrot.begin(); ii != m_bone_posrot.end(); ++ii){
+		for(std::map<std::string, core::vector2d<v3f> >::const_iterator ii = m_bone_position.begin(); ii != m_bone_position.end(); ++ii){
 			std::string bone_name = (*ii).first;
 			v3f bone_pos = (*ii).second.X;
 			v3f bone_rot = (*ii).second.Y;
@@ -1642,22 +1642,22 @@ public:
 
 			updateTexturePos();
 		}
-		else if(cmd == GENERIC_CMD_SET_ANIMATIONS)
+		else if(cmd == GENERIC_CMD_SET_ANIMATION)
 		{
-			m_frames = readV2F1000(is);
-			m_frame_speed = readF1000(is);
-			m_frame_blend = readF1000(is);
+			m_animation_range = readV2F1000(is);
+			m_animation_speed = readF1000(is);
+			m_animation_blend = readF1000(is);
 
-			updateAnimations();
+			updateAnimation();
 		}
-		else if(cmd == GENERIC_CMD_SET_BONE_POSROT)
+		else if(cmd == GENERIC_CMD_SET_BONE_POSITION)
 		{
 			std::string bone = deSerializeString(is);
 			v3f position = readV3F1000(is);
 			v3f rotation = readV3F1000(is);
-			m_bone_posrot[bone] = core::vector2d<v3f>(position, rotation);
+			m_bone_position[bone] = core::vector2d<v3f>(position, rotation);
 
-			updateBonePosRot();
+			updateBonePosition();
 		}
 		else if(cmd == GENERIC_CMD_SET_ATTACHMENT)
 		{
