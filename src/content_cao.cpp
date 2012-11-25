@@ -970,8 +970,11 @@ public:
 					wname.c_str(), video::SColor(255,255,255,255), node);
 			m_textnode->setPosition(v3f(0, BS*1.1, 0));
 		}
-		
+
 		updateNodePos();
+		updateAnimation();
+		updateBonePosition();
+		updateAttachments();
 	}
 
 	void expireVisuals()
@@ -1049,9 +1052,6 @@ public:
 
 			removeFromScene(false);
 			addToScene(m_smgr, m_gamedef->tsrc(), m_irr);
-			updateAnimation();
-			updateBonePosition();
-			updateAttachments();
 
 			// Attachments, part 2: Now that the parent has been refreshed, put its attachments back
 			for(std::vector<core::vector2d<int> >::iterator ii = m_env->attachment_list.begin(); ii != m_env->attachment_list.end(); ii++)
