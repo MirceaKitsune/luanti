@@ -1248,7 +1248,7 @@ public:
 		{
 			if(m_prop.visual == "mesh")
 			{
-				for (u32 i = 0; i < m_prop.textures.size() && i <= m_animated_meshnode->getMaterialCount(); ++i)
+				for (u32 i = 0; i < m_prop.textures.size() && i < m_animated_meshnode->getMaterialCount(); ++i)
 				{
 					std::string texturestring = m_prop.textures[i];
 					if(texturestring == "")
@@ -1271,7 +1271,7 @@ public:
 					m_animated_meshnode->getMaterial(i).setFlag(video::EMF_BILINEAR_FILTER, use_bilinear_filter);
 					m_animated_meshnode->getMaterial(i).setFlag(video::EMF_ANISOTROPIC_FILTER, use_anisotropic_filter);
 				}
-				for (u32 i = 0; i < m_prop.colors.size() && i <= m_animated_meshnode->getMaterialCount(); ++i)
+				for (u32 i = 0; i < m_prop.colors.size() && i < m_animated_meshnode->getMaterialCount(); ++i)
 				{
 					// This allows setting per-material colors. However, until a real lighting
 					// system is added, the code below will have no effect. Once MineTest
