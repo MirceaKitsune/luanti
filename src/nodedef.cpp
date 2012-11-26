@@ -111,6 +111,7 @@ void TileDef::serialize(std::ostream &os) const
 {
 	writeU8(os, 0); // version
 	os<<serializeString(name);
+	os<<serializeString(norm);
 	writeU8(os, animation.type);
 	writeU16(os, animation.aspect_w);
 	writeU16(os, animation.aspect_h);
@@ -123,6 +124,7 @@ void TileDef::deSerialize(std::istream &is)
 	if(version != 0)
 		throw SerializationError("unsupported TileDef version");
 	name = deSerializeString(is);
+	norm = deSerializeString(is);
 	animation.type = (TileAnimationType)readU8(is);
 	animation.aspect_w = readU16(is);
 	animation.aspect_h = readU16(is);
@@ -662,6 +664,8 @@ public:
 			for(u16 j=0; j<6; j++){
 				// Texture
 				f->tiles[j].texture = tsrc->getTexture(tiledef[j].name);
+				// Normal
+				f->tiles[j].normal = tsrc->getTexture(tiledef[j].norm);
 				// Alpha
 				f->tiles[j].alpha = f->alpha;
 				if(f->alpha == 255)
@@ -706,6 +710,9 @@ public:
 				// Texture
 				f->special_tiles[j].texture =
 						tsrc->getTexture(f->tiledef_special[j].name);
+				// Normal
+				f->special_tiles[j].normal =
+						tsrc->getTexture(f->tiledef_special[j].norm);
 				// Alpha
 				f->special_tiles[j].alpha = f->alpha;
 				if(f->alpha == 255)

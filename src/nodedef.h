@@ -101,6 +101,7 @@ enum TileAnimationType{
 struct TileDef
 {
 	std::string name;
+	std::string norm;
 	bool backface_culling; // Takes effect only in special cases
 	struct{
 		enum TileAnimationType type;
@@ -112,6 +113,7 @@ struct TileDef
 	TileDef()
 	{
 		name = "";
+		norm = "";
 		backface_culling = true;
 		animation.type = TAT_NONE;
 		animation.aspect_w = 1;

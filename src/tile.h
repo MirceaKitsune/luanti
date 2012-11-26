@@ -185,6 +185,7 @@ struct TileSpec
 {
 	TileSpec():
 		texture(0),
+		normal(0),
 		alpha(255),
 		//material_type(MATERIAL_ALPHA_NONE),
 		// Use this so that leaves don't need a separate material
@@ -202,6 +203,7 @@ struct TileSpec
 	{
 		return (
 			texture == other.texture &&
+			normal == other.normal &&
 			alpha == other.alpha &&
 			material_type == other.material_type &&
 			material_flags == other.material_flags
@@ -236,6 +238,7 @@ struct TileSpec
 	}
 	
 	AtlasPointer texture;
+	AtlasPointer normal;
 	// Vertex alpha (when MATERIAL_ALPHA_VERTEX is used)
 	u8 alpha;
 	// Material parameters

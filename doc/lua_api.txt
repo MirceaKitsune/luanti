@@ -1325,6 +1325,7 @@ Item definition (register_node, register_craftitem, register_tool)
 
 Tile definition:
 - "image.png"
+- {name="image.png", normal="image_norm.png"}
 - {name="image.png", animation={Tile Animation definition}}
 - {name="image.png", backface_culling=bool}
   ^ backface culling only supported in special tiles

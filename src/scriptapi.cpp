@@ -1080,6 +1080,7 @@ static TileDef read_tiledef(lua_State *L, int index)
 		tiledef.name = "";
 		getstringfield(L, index, "name", tiledef.name);
 		getstringfield(L, index, "image", tiledef.name); // MaterialSpec compat.
+		getstringfield(L, index, "normal", tiledef.norm);
 		tiledef.backface_culling = getboolfield_default(
 					L, index, "backface_culling", true);
 		// animation = {}

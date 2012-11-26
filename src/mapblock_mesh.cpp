@@ -1077,6 +1077,8 @@ MapBlockMesh::MapBlockMesh(MeshMakeData *data):
 		material.setTexture(0, p.tile.texture.atlas);
 		p.tile.applyMaterialOptions(material);
 
+		// use p.tile.normal.atlas somewhere around here
+
 		// Create meshbuffer
 
 		// This is a "Standard MeshBuffer",
