@@ -1018,11 +1018,11 @@ MapBlockMesh::MapBlockMesh(MeshMakeData *data):
 				<<", p.indices.size()="<<p.indices.size()
 				<<std::endl;*/
 
+		ITextureSource *tsrc = data->m_gamedef->tsrc();
 		// Generate animation data
 		// - Cracks
 		if(p.tile.material_flags & MATERIAL_FLAG_CRACK)
 		{
-			ITextureSource *tsrc = data->m_gamedef->tsrc();
 			std::string crack_basename = tsrc->getTextureName(p.tile.texture.id);
 			if(p.tile.material_flags & MATERIAL_FLAG_CRACK_OVERLAY)
 				crack_basename += "^[cracko";
@@ -1033,7 +1033,6 @@ MapBlockMesh::MapBlockMesh(MeshMakeData *data):
 		// - Texture animation
 		if(p.tile.material_flags & MATERIAL_FLAG_ANIMATION_VERTICAL_FRAMES)
 		{
-			ITextureSource *tsrc = data->m_gamedef->tsrc();
 			// Add to MapBlockMesh in order to animate these tiles
 			m_animation_tiles[i] = p.tile;
 			m_animation_frames[i] = 0;
@@ -1077,7 +1076,19 @@ MapBlockMesh::MapBlockMesh(MeshMakeData *data):
 		material.setTexture(0, p.tile.texture.atlas);
 		p.tile.applyMaterialOptions(material);
 
-		// use p.tile.normal.atlas somewhere around here
+		// use p.tile.normal here
+		IrrlichtDevice *device = tsrc->getDevice();
+		scene::ISceneManager* smgr = device->getSceneManager();
+		video::IVideoDriver* driver = smgr->getVideoDriver();
+
+		video::ITexture* normalMap = driver->getTexture("" /*normal texture*/);
+		if(normalMap)
+		{
+			driver->makeNormalMapTexture(normalMap, 9.0f);
+			material.setTexture(1, normalMap);
+			material.MaterialType = video::EMT_PARALLAX_MAP_SOLID;
+			material.MaterialTypeParam = 0.035f;
+		}
 
 		// Create meshbuffer
 
