@@ -92,6 +92,7 @@ void set_default_settings(Settings *settings)
 	settings->setDefault("smooth_lighting", "true");
 	settings->setDefault("enable_texture_atlas", "true");
 	settings->setDefault("texture_path", "");
+	settings->setDefault("shader_path", "");
 	settings->setDefault("video_driver", "opengl");
 	settings->setDefault("free_move", "false");
 	settings->setDefault("continuous_forward", "false");
@@ -113,6 +114,8 @@ void set_default_settings(Settings *settings)
 	settings->setDefault("anisotropic_filter", "false");
 	settings->setDefault("bilinear_filter", "false");
 	settings->setDefault("trilinear_filter", "false");
+	settings->setDefault("preload_item_visuals", "false");
+	settings->setDefault("enable_shaders", "2");
 
 	// Server stuff
 	// "map-dir" doesn't exist by default.

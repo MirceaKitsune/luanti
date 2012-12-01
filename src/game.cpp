@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <IGUIButton.h>
 #include <IGUIStaticText.h>
 #include <IGUIFont.h>
+#include <IMaterialRendererServices.h>
 #include "client.h"
 #include "server.h"
 #include "guiPauseMenu.h"
@@ -50,6 +51,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "main.h" // For g_settings
 #include "itemdef.h"
 #include "tile.h" // For TextureSource
+#include "shader.h" // For ShaderSource
 #include "logoutputbuffer.h"
 #include "subgame.h"
 #include "quicktune_shortcutter.h"
@@ -834,6 +836,49 @@ public:
 	}
 };
 
+class GameGlobalShaderConstantSetter : public IShaderConstantSetter
+{
+	Sky *m_sky;
+	bool *m_force_fog_off;
+	f32 *m_fog_range;
+
+public:
+	GameGlobalShaderConstantSetter(Sky *sky, bool *force_fog_off,
+			f32 *fog_range):
+		m_sky(sky),
+		m_force_fog_off(force_fog_off),
+		m_fog_range(fog_range)
+	{}
+	~GameGlobalShaderConstantSetter() {}
+
+	virtual void onSetConstants(video::IMaterialRendererServices *services,
+			bool is_highlevel)
+	{
+		if(!is_highlevel)
+			return;
+
+		// Background color
+		video::SColor bgcolor = m_sky->getBgColor();
+		video::SColorf bgcolorf(bgcolor);
+		float bgcolorfa[4] = {
+			bgcolorf.r,
+			bgcolorf.g,
+			bgcolorf.b,
+			bgcolorf.a,
+		};
+		services->setPixelShaderConstant("skyBgColor", bgcolorfa, 4);
+
+		// Fog distance
+		float fog_distance = *m_fog_range;
+		if(*m_force_fog_off)
+			fog_distance = 10000*BS;
+		services->setPixelShaderConstant("fogDistance", &fog_distance, 1);
+	}
+
+private:
+	IrrlichtDevice *m_device;
+};
+
 void the_game(
 	bool &kill,
 	bool random_input,
@@ -875,6 +920,9 @@ void the_game(
 	
 	// Create texture source
 	IWritableTextureSource *tsrc = createTextureSource(device);
+	
+	// Create shader source
+	IWritableShaderSource *shsrc = createShaderSource(device);
 	
 	// These will be filled by data received from the server
 	// Create item definition manager
@@ -943,7 +991,7 @@ void the_game(
 	MapDrawControl draw_control;
 
 	Client client(device, playername.c_str(), password, draw_control,
-			tsrc, itemdef, nodedef, sound, &eventmgr);
+			tsrc, shsrc, itemdef, nodedef, sound, &eventmgr);
 	
 	// Client acts as our GameDef
 	IGameDef *gamedef = &client;
@@ -1246,6 +1294,7 @@ void the_game(
 	bool show_hud = true;
 	bool show_chat = true;
 	bool force_fog_off = false;
+	f32 fog_range = 100*BS;
 	bool disable_camera_update = false;
 	bool show_debug = g_settings->getBool("show_debug");
 	bool show_profiler_graph = false;
@@ -1254,6 +1303,12 @@ void the_game(
 
 	float time_of_day = 0;
 	float time_of_day_smooth = 0;
+
+	/*
+		Shader constants
+	*/
+	shsrc->addGlobalConstantSetter(
+			new GameGlobalShaderConstantSetter(sky, &force_fog_off, &fog_range));
 
 	/*
 		Main loop
@@ -1416,10 +1471,16 @@ void the_game(
 			g_gamecallback->changepassword_requested = false;
 		}
 
-		/*
-			Process TextureSource's queue
-		*/
+		/* Process TextureSource's queue */
 		tsrc->processQueue();
+
+		/* Process ItemDefManager's queue */
+		itemdef->processQueue(gamedef);
+
+		/*
+			Process ShaderSource's queue
+		*/
+		shsrc->processQueue();
 
 		/*
 			Random calculations
@@ -2424,7 +2485,6 @@ void the_game(
 			Fog range
 		*/
 	
-		f32 fog_range;
 		if(farmesh)
 		{
 			fog_range = BS*farmesh_range;
@@ -3001,9 +3061,11 @@ void the_game(
 	
 	if(!sound_is_dummy)
 		delete sound;
+
+	delete tsrc;
+	delete shsrc;
 	delete nodedef;
 	delete itemdef;
-	delete tsrc;
 }
 
 
