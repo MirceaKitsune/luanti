@@ -1976,6 +1976,20 @@ void Client::sendPlayerPos()
 	Player *myplayer = m_env.getLocalPlayer();
 	if(myplayer == NULL)
 		return;
+
+	// Save bandwidth by only updating position when something changed
+	if(myplayer->last_position == myplayer->getPosition() &&
+	myplayer->last_speed == myplayer->getSpeed() &&
+	myplayer->last_pitch == myplayer->getPitch() &&
+	myplayer->last_yaw == myplayer->getYaw() &&
+	myplayer->last_keyPressed == myplayer->keyPressed)
+		return;
+
+	myplayer->last_position = myplayer->getPosition();
+	myplayer->last_speed = myplayer->getSpeed();
+	myplayer->last_pitch = myplayer->getPitch();
+	myplayer->last_yaw = myplayer->getYaw();
+	myplayer->last_keyPressed = myplayer->keyPressed;
 	
 	u16 our_peer_id;
 	{
