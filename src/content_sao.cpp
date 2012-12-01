@@ -852,6 +852,13 @@ void LuaEntitySAO::sendPosition(bool do_interpolate, bool is_movement_end)
 	// If the object is attached client-side, don't waste bandwidth sending its position to clients
 	if(isAttached())
 		return;
+
+	// Save bandwidth by only updating position when something changed
+	if(m_yaw == m_last_sent_yaw &&
+	m_base_position == m_last_sent_position &&
+	m_velocity == m_last_sent_velocity /*&&
+	m_acceleration == m_last_sent_acceleration*/)
+		return;
 	
 	m_last_sent_move_precision = m_base_position.getDistanceFrom(
 			m_last_sent_position);
@@ -915,6 +922,9 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, Player *player_, u16 peer_id_,
 	m_inventory = &m_player->inventory;
 	m_armor_groups["choppy"] = 2;
 	m_armor_groups["fleshy"] = 3;
+
+	m_last_position = v3f(0,0,0);
+	m_last_yaw = 0;
 
 	m_prop.hp_max = PLAYER_MAX_HP;
 	m_prop.physical = false;
@@ -1140,18 +1150,26 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 			pos = m_env->getActiveObject(m_attachment_parent_id)->getBasePosition();
 		else
 			pos = m_player->getPosition() + v3f(0,BS*1,0);
-		std::string str = gob_cmd_update_position(
-			pos,
-			v3f(0,0,0),
-			v3f(0,0,0),
-			m_player->getYaw(),
-			true,
-			false,
-			update_interval
-		);
-		// create message and add to list
-		ActiveObjectMessage aom(getId(), false, str);
-		m_messages_out.push_back(aom);
+
+		// Save bandwidth by only updating position when something changed
+		if(pos != m_last_position || m_player->getYaw() != m_last_yaw)
+		{
+			std::string str = gob_cmd_update_position(
+				pos,
+				v3f(0,0,0),
+				v3f(0,0,0),
+				m_player->getYaw(),
+				true,
+				false,
+				update_interval
+			);
+			// create message and add to list
+			ActiveObjectMessage aom(getId(), false, str);
+			m_messages_out.push_back(aom);
+
+			m_last_position = pos;
+			m_last_yaw = m_player->getYaw();
+		}
 	}
 
 	if(m_wielded_item_not_sent)

@@ -252,7 +252,8 @@ private:
 	ItemGroupList m_armor_groups;
 	bool m_armor_groups_sent;
 
-
+	v3f m_last_position;
+	float m_last_yaw;
 
 	bool m_properties_sent;
 	struct ObjectProperties m_prop;
